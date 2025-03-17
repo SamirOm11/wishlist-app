@@ -1,0 +1,41 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "ab16738b33038802313dfb6ee10cd83f"
+application_url = "https://relation-surrounded-commented-eh.trycloudflare.com"
+embedded = true
+name = "Wishlist-app"
+handle = "wishlist-app-318"
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://relation-surrounded-commented-eh.trycloudflare.com/auth/callback",
+  "https://relation-surrounded-commented-eh.trycloudflare.com/auth/shopify/callback",
+  "https://relation-surrounded-commented-eh.trycloudflare.com/api/auth/callback"
+]
+
+[app_proxy]
+url = "https://relation-surrounded-commented-eh.trycloudflare.com"
+subpath = "wishlist"
+prefix = "apps"
+
+[pos]
+embedded = false

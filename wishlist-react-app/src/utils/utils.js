@@ -1,5 +1,6 @@
 import axios from "axios";
 export const addtoCart = async ({ wishlistProDucts }) => {
+  console.log("🚀 ~ addtoCart ~ wishlistProDucts:", wishlistProDucts)
   try {
     const headers = {
       "Content-Type": "application/json",
@@ -7,18 +8,20 @@ export const addtoCart = async ({ wishlistProDucts }) => {
 
     let items = [];
 
-    const flatWishlist = wishlistProDucts.flat();
-    console.log("🚀 ~ addtoCart ~ flatWishlist:", flatWishlist);
+    // const flatWishlist = wishlistProDucts.flat();
+    // console.log("🚀 ~ addtoCart ~ flatWishlist:", flatWishlist);
 
-    items = flatWishlist.flatMap((product) => {
+    items = wishlistProDucts.flatMap((product) => {
       if (product?.variants?.edges?.length) {
         return product.variants.edges.map((variant) => {
           const fullId = variant.node.id;
+          console.log("🚀 ~ returnproduct.variants.edges.map ~ fullId:", fullId)
 
-          // Extract numeric ID from the full "gid" format
-          const numericId = fullId.split("/").pop(); // Get the last part after the last '/'
+        
+          const numericId = fullId.split("/").pop(); 
+          console.log("🚀 ~ returnproduct.variants.edges.map ~ numericId:", numericId)
 
-          // Check if the numericId exists and is valid
+ 
           if (!numericId) {
             console.error("Variant ID is missing", product);
           }
@@ -51,16 +54,3 @@ export const addtoCart = async ({ wishlistProDucts }) => {
   }
 };
 
-// export const fetchSavedWishlist = async ({shopURL}) => {
-//   try {
-//     const response = await fetch(`/apps/wishlist/api/fetchProductfromDb?shopURL=${shopURL}`);
-//     const result = await response.json();
-//     console.log("🚀 ~ fetchSavedWishlist ~ result:", result)
-//     if (result) {
-//       console.log("Product data successfully fetched.");
-//     }
-    
-//   } catch (error) {
-//     console.log("🚀 ~ fetchSavedWishlist ~ error:", error);
-//   }
-// };

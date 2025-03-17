@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ab16738b33038802313dfb6ee10cd83f"
-application_url = "https://relation-surrounded-commented-eh.trycloudflare.com"
+application_url = "https://nearby-seal-congress-flags.trycloudflare.com"
 embedded = true
 name = "Wishlist-app"
 handle = "wishlist-app-318"
@@ -27,13 +27,13 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://relation-surrounded-commented-eh.trycloudflare.com/auth/callback",
-  "https://relation-surrounded-commented-eh.trycloudflare.com/auth/shopify/callback",
-  "https://relation-surrounded-commented-eh.trycloudflare.com/api/auth/callback"
+  "https://nearby-seal-congress-flags.trycloudflare.com/auth/callback",
+  "https://nearby-seal-congress-flags.trycloudflare.com/auth/shopify/callback",
+  "https://nearby-seal-congress-flags.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://relation-surrounded-commented-eh.trycloudflare.com"
+url = "https://nearby-seal-congress-flags.trycloudflare.com"
 subpath = "wishlist"
 prefix = "apps"
 

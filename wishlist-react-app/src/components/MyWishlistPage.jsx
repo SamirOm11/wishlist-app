@@ -141,7 +141,7 @@ const MyWishlistPage = () => {
         document.querySelector("body"),
       )}
 
-      {wishlistProDuct?.length === 0  ? (
+      {wishlistProDuct?.length === 0 ? (
         <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
       ) : (
         <div className="wishlist-container">

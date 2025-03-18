@@ -8,15 +8,15 @@ export const loader = async ({ request }) => {
     const url = new URL(request.url);
     console.log("🚀 ~ loader ~ url in saved:", url)
     const shopURL = url.searchParams.get("shopURL");
+    const customerId = url.searchParams.get("customerId");
     console.log("🚀 ~ loader ~ shopURL:", shopURL)
-    const savedWishlistData = await addToWishlistModel.find({
-      shopURL,
+    const savedWishlistData = await addToWishlistModel.findOne({
+      customerId
     });
     console.log("🚀 ~ loader ~ savedWishlistData:", savedWishlistData);
 
-    const wishListData = savedWishlistData.map((wishlist) => wishlist);
-    console.log("🚀 ~ loader ~ wishListData:", wishListData);
-    return json({ success: true, wishlistdata: wishListData });
+   
+    return json({ success: true, wishlistdata: [savedWishlistData] });
   } catch (error) {
     console.log("🚀 ~ action ~ error:", error);
     return json({ error: error }, { status: 500 });

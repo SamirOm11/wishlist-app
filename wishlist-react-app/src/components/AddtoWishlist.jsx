@@ -4,60 +4,128 @@ import { getProductid } from "../utils/lib";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { NotificationAlert } from "./NotificationAlert";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getCustomerid } from "../utils/lib";
 
 const AddtoWishlist = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
+  const [wishlist, setWishlist] = useState("");
+  const [isAdded, setIsAdded] = useState();
+  console.log("🚀 ~ AddtoWishlist ~ isAdded:", isAdded);
+  const dynamicProdutId = getProductid();
+  const customerId = getCustomerid();
 
-  const handleclick = async () => {
-    const dynamicProdutId = getProductid();
-    const customerId = getCustomerid();
-    console.log("🚀 ~ handleclick ~ customerId:", customerId)
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const response = await fetch(
+          `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
+        );
+        const result = await response.json();
+        console.log("🚀 ~ fetchWishlist ~ result:", result);
+
+        if (result.success) {
+          console.log("Inside The result.success");
+
+          if (Array.isArray(result.wishlistdata)) {
+            const isProductInWishlist = result.wishlistdata.some(
+              (product) => product.productId === dynamicProdutId,
+            );
+            console.log(
+              "🚀 ~ fetchWishlist ~ isProductInWishlist:",
+              isProductInWishlist,
+            );
+            setIsAdded(isProductInWishlist);
+          } else {
+            console.warn("wishlistData is not an array:", result.wishlistdata);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+
+    fetchWishlist();
+  }, [customerId, dynamicProdutId]);
+
+  const handleclick = async (RemoveOne="RemoveOne") => {
+    console.log("🚀 ~ handleclick ~ customerId:", customerId);
     const shopURL = window.location.host;
-
     const formDataToSend = new FormData();
     formDataToSend.append("shopURL", shopURL);
     formDataToSend.append("productId", dynamicProdutId);
-    formDataToSend.append("customerId",customerId)
-
-    try {
-      const response = await fetch("/apps/wishlist/api/savewishlist", {
-        method: "POST",
-        body: formDataToSend,
-      });
-
-      if (!response.ok) {
-        console.error("Error response:", response);
-        setMessage("Error adding product to wishlist!");
+    formDataToSend.append("customerId", customerId);
+    if (isAdded) {
+      console.log("Inside the remove wishlist api function");
+      try {
+        const response = await fetch(
+          `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=${RemoveOne}&productId=${dynamicProdutId}`,
+          {
+            method: "DELETE"
+      
+          },
+        );
+        console.log("🚀 ~ handleclick ~ response:", response);
+        const result = await response.json();
+        if (result.success) {
+          setIsAdded(false);
+          setMessage("Product removed from wishlist!");
+          setSeverity("success");
+          setOpen(true);
+        } else {
+          setMessage("Error removing product from wishlist!");
+          setSeverity("error");
+          setOpen(true);
+        }
+      } catch (error) {
+        setMessage("Error removing product from wishlist!");
         setSeverity("error");
         setOpen(true);
-        return;
       }
+    } else {
+      console.log("Inside the Save wishlist api function");
+      try {
+        const response = await fetch("/apps/wishlist/api/savewishlist", {
+          method: "POST",
+          body: formDataToSend,
+        });
 
-      const result = await response.json();
-      console.log("Result: ", result);
-      if (result.success) {
-        setMessage("Product added to wishlist!");
-        setSeverity("success");
-        setOpen(true);
-      } else {
-        setMessage("Something went wrong, please try again.");
+        if (!response.ok) {
+          console.error("Error response:", response);
+          setMessage("Error adding product to wishlist!");
+          setSeverity("error");
+          setOpen(true);
+          return;
+        }
+
+        const result = await response.json();
+        setWishlist(result?.wishlistData);
+        console.log("Result: ", result);
+
+        if (result.success) {
+          setMessage("Product added to wishlist!");
+          setSeverity("success");
+          setIsAdded(true);
+          setOpen(true);
+        } else {
+          setMessage("Something went wrong, please try again.");
+          setSeverity("error");
+          setOpen(true);
+        }
+      } catch (error) {
+        console.error("Error from AddToWishlist:", error);
+        setMessage("An error occurred. Please try again.");
         setSeverity("error");
         setOpen(true);
       }
-    } catch (error) {
-      console.error("Error from AddToWishlist:", error);
-      setMessage("An error occurred. Please try again.");
-      setSeverity("error");
-      setOpen(true);
     }
   };
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <div>
       {createPortal(
@@ -69,6 +137,7 @@ const AddtoWishlist = () => {
         />,
         document.querySelector("body"),
       )}
+
       <Button
         sx={{
           fontSize: "small",
@@ -83,7 +152,7 @@ const AddtoWishlist = () => {
         <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
           <FavoriteBorderIcon style={{ fontSize: "large" }} />
         </div>
-        Add to Wishlist
+        {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
       </Button>
     </div>
   );

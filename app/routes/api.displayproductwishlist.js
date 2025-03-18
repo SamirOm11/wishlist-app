@@ -10,7 +10,7 @@ export const loader = async ({ request }) => {
     console.log("🚀 ~ loader ~ url:", url)
     const shopURL = url.searchParams.get("shopURL");
     console.log("🚀 ~ loader ~ shopURL:", shopURL)
-    const wishlistData = await addToWishlistModel.find({
+    const wishlistData = await addToWishlistModel.find({  
       shopURL,
     });
     console.log("wishlistData", wishlistData);

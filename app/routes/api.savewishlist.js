@@ -12,8 +12,8 @@ export const action = async ({ request }) => {
 
     const shopURL = formData.get("shopURL");
     const productId = formData.get("productId");
-    const customerId = formData.get("customerId")
-    console.log("🚀 ~ action ~ customerId:", customerId)
+    const customerId = formData.get("customerId");
+    console.log("🚀 ~ action ~ customerId:", customerId);
 
     console.log("shopURL", shopURL, "productId", productId);
 
@@ -23,10 +23,13 @@ export const action = async ({ request }) => {
       shopURL,
     });
 
-    await newWishlistItem.save();
+    const SavedWishlistData = await newWishlistItem.save();
     console.log("Product added to wishlist");
 
-    return json({ success: true });
+    return json(
+      { success: true, wishlistData: SavedWishlistData },
+      { status: 200 },
+    );
   } catch (error) {
     console.log("Error: ", error);
     return json({ success: false, error: error?.message }, { status: 500 });

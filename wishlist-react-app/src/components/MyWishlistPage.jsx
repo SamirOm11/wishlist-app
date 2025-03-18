@@ -10,7 +10,7 @@ import { NotificationAlert } from "./NotificationAlert";
 
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
-  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct);
+  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct.length);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
   const customeId = getCustomerid();
@@ -25,10 +25,10 @@ const MyWishlistPage = () => {
         `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}`,
       );
       const result = await response.json();
-      if (result.ok) {
+      if (result) {
         setLoaderOpen(false);
+        setWishlistProduct(result?.wishlistData || []);
       }
-      setWishlistProduct(result?.wishlistData || []);
     } catch (error) {
       console.log("🚀 ~ fetchWishlistProductData ~ error:", error);
     } finally {
@@ -115,7 +115,6 @@ const MyWishlistPage = () => {
         />,
         document.querySelector("body"),
       )}
-
       {createPortal(
         <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
         document.querySelector("body"),
@@ -141,9 +140,7 @@ const MyWishlistPage = () => {
         document.querySelector("body"),
       )}
 
-      {wishlistProDuct?.length === 0 ? (
-        <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
-      ) : (
+      {wishlistProDuct.length ? (
         <div className="wishlist-container">
           {wishlistProDuct?.map((item) => (
             <div className="wishlist-card" key={item.id}>
@@ -180,6 +177,8 @@ const MyWishlistPage = () => {
             </div>
           ))}
         </div>
+      ) : (
+        <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
       )}
     </>
   );

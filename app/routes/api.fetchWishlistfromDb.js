@@ -10,13 +10,13 @@ export const loader = async ({ request }) => {
     const shopURL = url.searchParams.get("shopURL");
     const customerId = url.searchParams.get("customerId");
     console.log("🚀 ~ loader ~ shopURL:", shopURL)
-    const savedWishlistData = await addToWishlistModel.findOne({
+    const savedWishlistData = await addToWishlistModel.find({
       customerId
     });
     console.log("🚀 ~ loader ~ savedWishlistData:", savedWishlistData);
 
    
-    return json({ success: true, wishlistdata: [savedWishlistData] });
+    return json({ success: true, wishlistdata: savedWishlistData });
   } catch (error) {
     console.log("🚀 ~ action ~ error:", error);
     return json({ error: error }, { status: 500 });

@@ -2,6 +2,7 @@ import React from "react";
 import Button from "@mui/material/Button";
 import { getProductid } from "../utils/lib";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { NotificationAlert } from "./NotificationAlert";
 import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
@@ -15,6 +16,7 @@ const AddtoWishlist = () => {
   const [isAdded, setIsAdded] = useState();
   console.log("🚀 ~ AddtoWishlist ~ isAdded:", isAdded);
   const dynamicProdutId = getProductid();
+  console.log("🚀 ~ AddtoWishlist ~ dynamicProdutId:", dynamicProdutId);
   const customerId = getCustomerid();
 
   useEffect(() => {
@@ -28,7 +30,7 @@ const AddtoWishlist = () => {
 
         if (result.success) {
           console.log("Inside The result.success");
-
+          console.log("result.wishlistdata", result.wishlistdata);
           if (Array.isArray(result.wishlistdata)) {
             const isProductInWishlist = result.wishlistdata.some(
               (product) => product.productId === dynamicProdutId,
@@ -50,7 +52,7 @@ const AddtoWishlist = () => {
     fetchWishlist();
   }, [customerId, dynamicProdutId]);
 
-  const handleclick = async (RemoveOne="RemoveOne") => {
+  const handleclick = async (RemoveOne = "RemoveOne") => {
     console.log("🚀 ~ handleclick ~ customerId:", customerId);
     const shopURL = window.location.host;
     const formDataToSend = new FormData();
@@ -63,8 +65,7 @@ const AddtoWishlist = () => {
         const response = await fetch(
           `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=${RemoveOne}&productId=${dynamicProdutId}`,
           {
-            method: "DELETE"
-      
+            method: "DELETE",
           },
         );
         console.log("🚀 ~ handleclick ~ response:", response);
@@ -144,14 +145,21 @@ const AddtoWishlist = () => {
           width: "345px",
           height: "45px",
           color: "white",
-          backgroundColor: "#ff3333",
+          backgroundColor: "rgb(255 87 117)",
         }}
         variant="outlined"
         onClick={handleclick}
       >
-        <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
-          <FavoriteBorderIcon style={{ fontSize: "large" }} />
-        </div>
+        {isAdded ? (
+          <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+            <FavoriteIcon style={{ fontSize: "large" }} />
+          </div>
+        ) : (
+          <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+            <FavoriteBorderIcon style={{ fontSize: "large" }} />
+          </div>
+        )}
+
         {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
       </Button>
     </div>

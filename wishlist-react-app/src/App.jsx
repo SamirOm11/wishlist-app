@@ -2,19 +2,15 @@ import "./App.css";
 import AddtoWishlist from "./components/AddtoWishlist";
 import MyWishlistPage from "./components/MyWishlistPage";
 import { createPortal } from "react-dom";
+import ProductCardWishlistButton from "./components/ProductCardWishlistButton";
 
 export default function App() {
   return (
     <>
-      {renderPortal(
-        <AddtoWishlist />,
-       "add-to-wishlist"
-      )}
+      <ProductCardWishlistButton />
+      {renderPortal(<AddtoWishlist />, "add-to-wishlist")}
 
-      {renderPortal(
-        <MyWishlistPage />,
-    "my-product-wishlist-id"
-      )}
+      {renderPortal(<MyWishlistPage />, "my-product-wishlist-id")}
     </>
   );
 }
@@ -26,4 +22,3 @@ const renderPortal = (Component, elementId) => {
   }
   return null;
 };
-

@@ -10,7 +10,7 @@ import { NotificationAlert } from "./NotificationAlert";
 
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
-  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct.length);
+  const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
   const customeId = getCustomerid();
@@ -104,6 +104,11 @@ const MyWishlistPage = () => {
     fetchWishlistProductData();
   }, []);
 
+  useEffect(() => {
+    if (wishlistProDuct?.length) setIsWishlistEmpty(false);
+    else setIsWishlistEmpty(true);
+  }, [wishlistProDuct]);
+
   return (
     <>
       {createPortal(
@@ -113,10 +118,6 @@ const MyWishlistPage = () => {
           severity={severity}
           message={message}
         />,
-        document.querySelector("body"),
-      )}
-      {createPortal(
-        <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
         document.querySelector("body"),
       )}
 
@@ -140,7 +141,18 @@ const MyWishlistPage = () => {
         document.querySelector("body"),
       )}
 
-      {wishlistProDuct.length ? (
+      {loaderOpen ? (
+        createPortal(
+          <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
+          document.querySelector("body"),
+        )
+      ) : isWishlistEmpty ? (
+        <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
+      ) : (
+    ""
+      )}
+
+      {wishlistProDuct.length && (
         <div className="wishlist-container">
           {wishlistProDuct?.map((item) => (
             <div className="wishlist-card" key={item.id}>
@@ -177,8 +189,6 @@ const MyWishlistPage = () => {
             </div>
           ))}
         </div>
-      ) : (
-        <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
       )}
     </>
   );

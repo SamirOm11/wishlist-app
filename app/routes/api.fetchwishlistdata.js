@@ -2,7 +2,7 @@ import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import addToWishlistModel from "../model/add-wishlist-model";
 import { productDetails as productDetailsQuery } from "../queries/graphql/productData";
-
+import { customer as customerDetailsQuery } from "../queries/graphql/customerDetails";
 export const loader = async ({ request }) => {
   try {
     const { admin, session } = await authenticate.admin(request);
@@ -18,12 +18,22 @@ export const loader = async ({ request }) => {
         productIds,
       },
     });
-    console.log("productResponse", productResponse);
 
     const productData = await productResponse.json();
-    console.log("productData", productData);
     const productDetailsArray = productData?.data?.nodes;
-    console.log("productDetailsArray", productDetailsArray);
+    console.log("🚀 ~ loader ~ productDetailsArray:", productDetailsArray)
+
+    // const customerIds = wishlistData.map((item) => item.customerId);
+    // console.log("🚀 ~ loader ~ customerIds:", customerIds)
+    // const customerResponse = await admin.graphql(customerDetailsQuery, {
+    //   variables: { customerIds },
+    // });
+    // console.log("🚀 ~ loader ~ customerResponse:", customerResponse);
+    
+    // const customerData = customerResponse.data;
+    // console.log("🚀 ~ loader ~ customerData:", customerData);
+    
+    
     return json({ success: true, wishlistData: productDetailsArray });
   } catch (error) {
     return json({ success: false, error: error?.message }, { status: 500 });

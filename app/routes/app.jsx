@@ -23,7 +23,7 @@ export default function App() {
           Home
         </Link>
         {/* <Link to="/app/additional">Additional page</Link> */}
-        <Link to="/app/wishlisttable">Wishlist Dashboard</Link>
+        <Link to="/app/wishlisttable">Wishlist by Customer</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

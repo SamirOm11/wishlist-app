@@ -14,6 +14,7 @@ const MyWishlistPage = () => {
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
   const customeId = getCustomerid();
+  console.log("🚀 ~ MyWishlistPage ~ customeId:", customeId)
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
@@ -22,7 +23,7 @@ const MyWishlistPage = () => {
     setLoaderOpen(true);
     try {
       const response = await fetch(
-        `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}`,
+        `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customeId}`,
       );
       const result = await response.json();
       if (result) {
@@ -96,6 +97,8 @@ const MyWishlistPage = () => {
     }
   };
 
+  const handleShareWishlist = async () => {};
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -122,16 +125,30 @@ const MyWishlistPage = () => {
       )}
 
       {createPortal(
-        <div>
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: "150px",
+            right: "110px",
+            gap: "10px",
+          }}
+        >
           <Button
             sx={{
               fontSize: "12px",
-              marginRight: "2px",
-              position: "absolute",
               backgroundColor: "black",
-              top: "150px",
               color: "white",
-              right: "110px",
+            }}
+            onClick={() => handleShareWishlist("clearAll", 0)}
+          >
+            Share Wishlist
+          </Button>
+          <Button
+            sx={{
+              fontSize: "12px",
+              backgroundColor: "black",
+              color: "white",
             }}
             onClick={() => handleDeleteWishlist("clearAll", 0)}
           >
@@ -141,18 +158,16 @@ const MyWishlistPage = () => {
         document.querySelector("body"),
       )}
 
-      {loaderOpen ? (
-        createPortal(
-          <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
-          document.querySelector("body"),
-        )
-      ) : isWishlistEmpty ? (
-        <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
-      ) : (
-    ""
-      )}
+      {loaderOpen
+        ? createPortal(
+            <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
+            document.querySelector("body"),
+          )
+        : isWishlistEmpty && (
+            <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
+          )}
 
-      {wishlistProDuct.length && (
+      {wishlistProDuct.length ? (
         <div className="wishlist-container">
           {wishlistProDuct?.map((item) => (
             <div className="wishlist-card" key={item.id}>
@@ -189,6 +204,8 @@ const MyWishlistPage = () => {
             </div>
           ))}
         </div>
+      ) : (
+        " "
       )}
     </>
   );

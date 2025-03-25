@@ -9,9 +9,10 @@ export const loader = async ({ request }) => {
     const url = new URL(request.url);
     console.log("🚀 ~ loader ~ url:", url)
     const shopURL = url.searchParams.get("shopURL");
-    console.log("🚀 ~ loader ~ shopURL:", shopURL)
+    const customerId = url.searchParams.get("customeId");
+    console.log("🚀 ~ loader ~ customeId:", customerId)
     const wishlistData = await addToWishlistModel.find({  
-      shopURL,
+      customerId
     });
     console.log("wishlistData", wishlistData);
     const productIds = wishlistData.map((item) => item.productId);

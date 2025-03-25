@@ -1,82 +1,143 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useState, useEffect } from "react";
+import IconButton from "@mui/material/IconButton";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import { getCustomerid } from "../utils/lib";
 
 const ProductCardWishlistButton = () => {
+  const [wishlist, setWishlist] = useState([]);
   const [productCardNodes, setProductCardNodes] = useState([]);
-  console.log(
-    "🚀 ~ ProductCardWishlistButton ~ productCardNodes:",
-    productCardNodes,
-  );
-  const [customProductCardButtons, setCustomProductCardButtons] = useState([]);
-  console.log(
-    "🚀 ~ ProductCardWishlistButton ~ customProductCardButtons:",
-    customProductCardButtons,
-  );
   const [productLinkNodes, setProductLinkNodes] = useState([]);
-  console.log(
-    "🚀 ~ ProductCardWishlistButton ~ productLinkNodes:",
-    productLinkNodes,
-  );
+
+  const customerId = getCustomerid();
+
   const productLinkNodeSelector =
-    ".card-wrapper .card > .card_content .card_information .card_heading a";
-  const productCardWrapperSelector = ".grid_item .card-wrapper";
-  console.log(
-    "🚀 ~ ProductCardWishlistButton ~ productCardWrapperSelector:",
-    productCardWrapperSelector,
-  );
+    ".card-wrapper .card > .card__content .card__information .card__heading a";
+  const productCardWrapperSelector = ".grid__item .card-wrapper";
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      const response = await fetch(
+        `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
+      );
+      const result = await response.json();
+      console.log("🚀 ~ fetchWishlist ~ result:", result);
+
+      setWishlist(result.wishlistdata);
+    };
+
+    fetchWishlist();
+  }, []);
 
   useEffect(() => {
     const productCardNodesArray = document.querySelectorAll(
       productCardWrapperSelector,
     );
-    console.log(
-      "🚀 ~ useEffect ~ productCardNodesArray:",
-      productCardNodesArray,
-    );
-
     const productLinkElements = document.querySelectorAll(
       productLinkNodeSelector,
     );
-    console.log("🚀 ~ useEffect ~ productLinkElements:", productLinkElements);
-    let customProductcardButtonNodes = document.querySelectorAll(
-      ".stensiled-wishlist-icon-button-custom-root",
-    );
-    console.log(
-      "🚀 ~ useEffect ~ customProductcardButtonNodes:",
-      customProductcardButtonNodes,
-    );
-
-    if (customProductcardButtonNodes?.length) {
-      setCustomProductCardButtons(Array.from(customProductcardButtonNodes));
-    }
-
-    if (productCardNodesArray?.length) {
-      setProductLinkNodes(Array.from(productLinkElements));
-      setProductCardNodes(Array.from(productCardNodesArray));
-    }
+    setProductCardNodes(Array.from(productCardNodesArray));
+    setProductLinkNodes(Array.from(productLinkElements));
   }, []);
+
+  const handleWishlistToggle = async (
+    productId,
+    productName,
+    productUrl,
+    RemoveOne = "RemoveOne",
+  ) => {
+    const isProductInWishlist = wishlist.some(
+      (item) => item.productId === productId,
+    );
+
+    const shopURL = window.location.host;
+    const formDataToSend = new FormData();
+    formDataToSend.append("shopURL", shopURL);
+    formDataToSend.append("productId", productId);
+    formDataToSend.append("customerId", customerId);
+
+    try {
+      if (isProductInWishlist) {
+        await fetch(
+          `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=${RemoveOne}&productId=${productId}`,
+          {
+            method: "POST",
+            body: formDataToSend,
+          },
+        );
+
+        setWishlist((prev) =>
+          prev.filter((item) => item.productId !== productId),
+        );
+      } else {
+        // Add product to wishlist
+        await fetch("/apps/wishlist/api/savewishlist", {
+          method: "POST",
+          body: formDataToSend,
+        });
+
+        setWishlist((prev) => [
+          ...prev,
+          { productId, productName, productUrl },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error updating wishlist", error);
+    }
+  };
 
   return (
     <>
-      {/* Collection page */}
-
-      {window.ShopifyAnalytics.meta.page.pageType === "collection" &&
-        !customProductCardButtons?.length &&
-        productCardNodes?.length &&
+      {productCardNodes?.length &&
         productCardNodes.map((productCardNode, index) => {
-          const product = window.shopifyAnalytic?.meta?.products?.length
-            ? window.shopifyAnalytic?.meta?.products[index]
+          const product = window.ShopifyAnalytics?.meta?.products?.length
+            ? window.ShopifyAnalytics?.meta?.products[index]
             : null;
-          const productGid = product ? product.gid : "";
+            console.log("product",product)
+          const productId = product ? product.gid : "";
+          console.log("productId", productId);
           const productUrl = productLinkNodes[index].href;
-          const selectedVariantId = product?.variants?.length
-            ? product.variants[0]?.id
-            : "";
+          const isProductInWishlist = wishlist.some(
+            (item) => item.productId === productId,
+          );
+          console.log(
+            "🚀 ~ ProductCardWishlistButton ~ isProductInWishlist:",
+            isProductInWishlist,
+          );
 
-          return createPortal(<h1>Samir</h1>, productCardNode);
+          return createPortal(
+            <div
+              key={productId}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                zIndex: 10,
+              }}
+            >
+              <IconButton
+                sx={{ fontSize: "20px" }}
+                onClick={() =>
+                  handleWishlistToggle(productId, product?.name, productUrl)
+                }
+                style={{ color: isProductInWishlist ? "red" : "grey" }}
+                aria-label={
+                  isProductInWishlist
+                    ? "Remove from Wishlist"
+                    : "Add to Wishlist"
+                }
+              >
+                {isProductInWishlist ? (
+                  <Favorite sx={{ fontSize: "x-large" }} />
+                ) : (
+                  <FavoriteBorder sx={{ fontSize: "x-large" }} />
+                )}
+              </IconButton>
+            </div>,
+            productCardNode,
+          );
         })}
-        
     </>
   );
 };

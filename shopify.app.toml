@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ab16738b33038802313dfb6ee10cd83f"
-application_url = "https://applying-smallest-belle-fair.trycloudflare.com"
+application_url = "https://cuba-socks-katrina-faq.trycloudflare.com"
 embedded = true
 name = "Wishlist-app"
 handle = "wishlist-app-318"
@@ -23,17 +23,17 @@ api_version = "2025-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products,read_customers"
+scopes = "read_customers,write_products"
 
 [auth]
 redirect_urls = [
-  "https://applying-smallest-belle-fair.trycloudflare.com/auth/callback",
-  "https://applying-smallest-belle-fair.trycloudflare.com/auth/shopify/callback",
-  "https://applying-smallest-belle-fair.trycloudflare.com/api/auth/callback"
+  "https://cuba-socks-katrina-faq.trycloudflare.com/auth/callback",
+  "https://cuba-socks-katrina-faq.trycloudflare.com/auth/shopify/callback",
+  "https://cuba-socks-katrina-faq.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://applying-smallest-belle-fair.trycloudflare.com"
+url = "https://cuba-socks-katrina-faq.trycloudflare.com"
 subpath = "wishlist"
 prefix = "apps"
 

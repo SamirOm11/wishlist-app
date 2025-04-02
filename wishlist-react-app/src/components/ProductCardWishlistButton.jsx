@@ -8,6 +8,10 @@ import { getCustomerid } from "../utils/lib";
 const ProductCardWishlistButton = () => {
   const [wishlist, setWishlist] = useState([]);
   const [productCardNodes, setProductCardNodes] = useState([]);
+  console.log(
+    "🚀 ~ ProductCardWishlistButton ~ productCardNodes:",
+    productCardNodes,
+  );
   const [productLinkNodes, setProductLinkNodes] = useState([]);
 
   const customerId = getCustomerid();
@@ -94,7 +98,7 @@ const ProductCardWishlistButton = () => {
           const product = window.ShopifyAnalytics?.meta?.products?.length
             ? window.ShopifyAnalytics?.meta?.products[index]
             : null;
-            console.log("product",product)
+          console.log("product", product);
           const productId = product ? product.gid : "";
           console.log("productId", productId);
           const productUrl = productLinkNodes[index].href;
@@ -121,6 +125,59 @@ const ProductCardWishlistButton = () => {
                 onClick={() =>
                   handleWishlistToggle(productId, product?.name, productUrl)
                 }
+                style={{ color: isProductInWishlist ? "red" : "grey" }}
+                aria-label={
+                  isProductInWishlist
+                    ? "Remove from Wishlist"
+                    : "Add to Wishlist"
+                }
+              >
+                {isProductInWishlist ? (
+                  <Favorite sx={{ fontSize: "x-large" }} />
+                ) : (
+                  <FavoriteBorder sx={{ fontSize: "x-large" }} />
+                )}
+              </IconButton>
+            </div>,
+            productCardNode,
+          );
+        })}
+
+      {/* For Home Page */}
+      {window.ShopifyAnalytics.meta.page.pageType === "home" &&
+        productCardNodes.map((productCardNode, index) => {
+          let productGid = "";
+          const idSplitArray =
+            productLinkNodes[index].parentElement.id.split("-");
+          const id = idSplitArray[idSplitArray.length - 1];
+          if (id) productGid = "gid://shopify/Product/" + id;
+          else {
+            return null;
+          }
+
+          const productUrl = productLinkNodes[index].href;
+          const selectedVariantId = "";
+          const isProductInWishlist = wishlist.some(
+            (item) => item.productId === productGid,
+          );
+          console.log(
+            "🚀 ~ ProductCardWishlistButton ~ isProductInWishlist:",
+            isProductInWishlist,
+          );
+
+          return createPortal(
+            <div
+              key={productGid}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                zIndex: 10,
+              }}
+            >
+              <IconButton
+                sx={{ fontSize: "20px" }}
+                onClick={() => handleWishlistToggle(productGid, productUrl)}
                 style={{ color: isProductInWishlist ? "red" : "grey" }}
                 aria-label={
                   isProductInWishlist

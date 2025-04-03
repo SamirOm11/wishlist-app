@@ -4,6 +4,7 @@ import IconButton from "@mui/material/IconButton";
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import { getCustomerid } from "../utils/lib";
+import { NotificationAlert } from "./NotificationAlert";
 
 const ProductCardWishlistButton = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -12,6 +13,12 @@ const ProductCardWishlistButton = () => {
     "🚀 ~ ProductCardWishlistButton ~ productCardNodes:",
     productCardNodes,
   );
+  const [message, setMessage] = useState("");
+  console.log("🚀 ~ ProductCardWishlistButton ~ message:", message);
+  const [open, setOpen] = useState(false);
+  console.log("🚀 ~ ProductCardWishlistButton ~ open:", open);
+
+  const [severity, setSeverity] = useState("success");
   const [productLinkNodes, setProductLinkNodes] = useState([]);
 
   const customerId = getCustomerid();
@@ -63,23 +70,33 @@ const ProductCardWishlistButton = () => {
 
     try {
       if (isProductInWishlist) {
-        await fetch(
+        const response = await fetch(
           `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=${RemoveOne}&productId=${productId}`,
           {
             method: "POST",
             body: formDataToSend,
           },
         );
+        const result = await response.json();
+        console.log("🚀 ~ ProductCardWishlistButton ~ result:", result);
 
         setWishlist((prev) =>
           prev.filter((item) => item.productId !== productId),
         );
       } else {
         // Add product to wishlist
-        await fetch("/apps/wishlist/api/savewishlist", {
+        const response = await fetch("/apps/wishlist/api/savewishlist", {
           method: "POST",
           body: formDataToSend,
         });
+        const result = await response.json();
+        if (result) {
+          if (result) {
+            setMessage("Product successfully added to wishlist");
+            setSeverity("success");
+            setOpen(true);
+          }
+        }
 
         setWishlist((prev) => [
           ...prev,
@@ -91,8 +108,21 @@ const ProductCardWishlistButton = () => {
     }
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
     <>
+      {createPortal(
+        <NotificationAlert
+          open={open}
+          handleClose={handleClose}
+          severity={severity}
+          message={message}
+        />,
+        document.querySelector("body"),
+      )}
+
       {productCardNodes?.length &&
         productCardNodes.map((productCardNode, index) => {
           const product = window.ShopifyAnalytics?.meta?.products?.length
@@ -147,6 +177,10 @@ const ProductCardWishlistButton = () => {
       {window.ShopifyAnalytics.meta.page.pageType === "home" &&
         productCardNodes.map((productCardNode, index) => {
           let productGid = "";
+          console.log(
+            "🚀 ~ ProductCardWishlistButton ~ productGid:",
+            productGid,
+          );
           const idSplitArray =
             productLinkNodes[index].parentElement.id.split("-");
           const id = idSplitArray[idSplitArray.length - 1];

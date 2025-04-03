@@ -10,6 +10,7 @@ export const action = async ({ request }) => {
     console.log("🚀 ~ action ~ url:", url);
     const customerId = url.searchParams.get("customeId");
     const deleteType = url.searchParams.get("type");
+    console.log("🚀 ~ action ~ deleteType:", deleteType)
     const productId = url.searchParams.get("productId");
     console.log("🚀 ~ action ~ productId:", productId);
 
@@ -18,8 +19,10 @@ export const action = async ({ request }) => {
     }
 
     if (deleteType === "RemoveOne") {
+      console.log("Inside de deleteOne")
       await addToWishlistModel.deleteOne({ productId });
     } else {
+      console.log("Inside de deleteMany")
       await addToWishlistModel.deleteMany({
         customerId,
       });

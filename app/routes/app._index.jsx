@@ -1,330 +1,315 @@
-// import { useEffect } from "react";
-// import { useFetcher } from "@remix-run/react";
-import Dashboard from "../components/Dashboard";
 import {
-  Page,
-  // Layout,
-  // Text,
-  // Card,
-  // Button,
-  // BlockStack,
-  // Box,
-  // List,
-  // Link,
-  // InlineStack,
+  Divider,
+  Banner,
+  EmptyState,
+  BlockStack,
+  Text,
+  Card,
+  Button,
 } from "@shopify/polaris";
-// import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
-// import { authenticate } from "../shopify.server";
-
-// export const loader = async ({ request }) => {
-//   await authenticate.admin(request);
-
-//   return null;
-// };
-
-// export const action = async ({ request }) => {
-//   const { admin } = await authenticate.admin(request);
-//   const color = ["Red", "Orange", "Yellow", "Green"][
-//     Math.floor(Math.random() * 4)
-//   ];
-//   const response = await admin.graphql(
-//     `#graphql
-//       mutation populateProduct($product: ProductCreateInput!) {
-//         productCreate(product: $product) {
-//           product {
-//             id
-//             title
-//             handle
-//             status
-//             variants(first: 10) {
-//               edges {
-//                 node {
-//                   id
-//                   price
-//                   barcode
-//                   createdAt
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }`,
-//     {
-//       variables: {
-//         product: {
-//           title: `${color} Snowboard`,
-//         },
-//       },
-//     },
-//   );
-//   const responseJson = await response.json();
-//   const product = responseJson.data.productCreate.product;
-//   const variantId = product.variants.edges[0].node.id;
-//   const variantResponse = await admin.graphql(
-//     `#graphql
-//     mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-//       productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-//         productVariants {
-//           id
-//           price
-//           barcode
-//           createdAt
-//         }
-//       }
-//     }`,
-//     {
-//       variables: {
-//         productId: product.id,
-//         variants: [{ id: variantId, price: "100.00" }],
-//       },
-//     },
-//   );
-//   const variantResponseJson = await variantResponse.json();
-
-//   return {
-//     product: responseJson.data.productCreate.product,
-//     variant: variantResponseJson.data.productVariantsBulkUpdate.productVariants,
-//   };
-// };
+import { Link } from "@remix-run/react";
+import TopProductsSkeleton from "../components/TopProductsSkeleton";
+import { ExternalIcon, PersonIcon, ImageIcon } from "@shopify/polaris-icons";
+// import DateRangePicker from "../components/DateRangePicker";
+import { useEffect, useState } from "react";
+import { getDashboardData } from "../actions/getDashboardData";
 
 export default function Index() {
-  // const fetcher = useFetcher();
-  // const shopify = useAppBridge();
-  // const isLoading =
-  //   ["loading", "submitting"].includes(fetcher.state) &&
-  //   fetcher.formMethod === "POST";
-  // const productId = fetcher.data?.product?.id.replace(
-  //   "gid://shopify/Product/",
-  //   "",
-  // );
+  const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (productId) {
-  //     shopify.toast.show("Product created");
+  const [dateRange, setDateRange] = useState({
+    start: new Date(new Date().setDate(new Date().getDate() - 30)),
+    end: new Date(),
+  });
+
+  const [themeData, setThemeData] = useState();
+  const [dashboardData, setDashboardData] = useState({
+    totalWishlistAdditions: 0,
+    totalProductsAddedToCart: 0,
+    totalProductsAddedToWishlist: 0,
+    totalCustomers: 0,
+    totalAnonymousCustomers: 0,
+    topProductsSFL: [],
+    topCustomersSFL: [],
+    topCustomers: [],
+    topProducts: [],
+  });
+
+  const cards = [
+    {
+      title: "Wishlist additions",
+      value: dashboardData.totalWishlistAdditions,
+      action: { text: "View activities", link: "/app/activity" },
+    },
+    {
+      title: "Customers",
+      value: dashboardData.totalCustomers,
+      action: { text: "View customers", link: "/app/customers" },
+    },
+    {
+      title: "Anonymous customers",
+      value: dashboardData.totalAnonymousCustomers,
+      action: { text: "View customers", link: "/app/customers" },
+    },
+    {
+      title: "Products added to wishlist",
+      value: dashboardData.totalProductsAddedToWishlist,
+      action: { text: "View products", link: "/app/products" },
+    },
+    {
+      title: "Products added to cart",
+      value: dashboardData.totalProductsAddedToCart,
+      action: { text: "View activities", link: "/app/activity" },
+    },
+  ];
+
+  const themeEditorButton = ({
+    buttonText,
+    appEmbedId,
+    activeThemeId,
+    shop,
+  }) => (
+    <Link
+      to={`https://admin.shopify.com/store/${shop.myshopify_domain.replace(".myshopify.com", "")}/themes/${activeThemeId}/editor?context=apps&activateAppId=${appEmbedId}/Wishlist`}
+      target="_blank"
+      className="w-fit"
+    >
+      <Button icon={ExternalIcon} variant="primary">
+        {buttonText}
+      </Button>
+    </Link>
+  );
+
+  const handleDateRangeChange = (newDateRange) => {
+    setDateRange(newDateRange);
+  };
+
+  // async function fetchData() {
+  //   setIsLoading(true);
+  //   const { data, error } = await getDashboardData({
+  //     startDate: dateRange.start?.toISOString(),
+  //     endDate: dateRange.end?.toISOString(),
+  //   });
+  //   if (error) {
+  //     if (error.response?.status === 500)
+  //       shopify.toast("Server Error", { isError: true });
+  //     else
+  //       shopify.toast.show("Oops! Something went wrong. Please try again", {
+  //         isError: true,
+  //       });
+  //   } else {
+  //     setDashboardData(data);
   //   }
-  // }, [productId, shopify]);
-  // const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  //   setIsLoading(false);
+  // }
+
+  async function fetchData() {
+    try {
+      const response = await fetch("/api/analytics");
+      const result = await response.json();
+      console.log("🚀 ~ fetchData ~ result:", result);
+      if (result) {
+        console.log("data successfully found");
+        setDashboardData(result);
+      }
+    } catch (error) {
+      console.log("error in fetching data", error);
+    }
+  }
+
+  async function fetchExtensionIsEnabled() {
+    try {
+      const res = await fetch("/api/theme");
+      const data = await res.json();
+      if (res.ok) setThemeData(data);
+      else if (res.status === 500)
+        shopify.toast.show("Internal Server Error.", { isError: true });
+      else if (res.status >= 400)
+        shopify.toast.show("Something went wrong", {
+          isError: true,
+        });
+    } catch (error) {
+      console.log(error, "error");
+      shopify.toast.show("Oops! Something went wrong", { isError: true });
+    }
+  }
+
+  useEffect(() => {
+    fetchExtensionIsEnabled();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
-    <Page>
-      {/* <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
-      </TitleBar>
-      <BlockStack gap="500">
-        <Layout>
-          <Layout.Section>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        padding: "2rem 5rem",
+        gap: "2rem",
+      }}
+    >
+      {themeData?.themeExtensionDisabled && (
+        <div style={{ marginBottom: "2.5rem" }}>
+          <div style={{ margin: "0 auto", maxWidth: "1024px" }}>
+            <Banner title="Enable Theme Extension" tone="warning">
+              <p style={{ marginBottom: "1rem" }}>
+                Please enable the theme extension in the theme editor to ensure
+                the app functions correctly.
+              </p>
+              {themeEditorButton({
+                buttonText: "Enable theme extension",
+                activeThemeId: themeData.activeThemeId,
+                appEmbedId: themeData.appEmbedId,
+                shop: themeData.shop,
+              })}
+            </Banner>
+          </div>
+        </div>
+      )}
+      <Text variant="headingLg">Dashboard</Text>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gap: "1rem",
+          mdGridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          lgGridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          xlDisplay: "flex",
+          xlAlignItems: "center",
+          xlFlexWrap: "nowrap",
+          xlGap: "1rem",
+        }}
+      >
+        {cards.map((card, i) => (
+          <div style={{ width: "100%", height: "100%" }} key={i}>
             <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
-                  </Text>
-                  <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
-                  </Text>
-                </BlockStack>
-                <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Get started with products
-                  </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                  minWidth: "14rem",
+                }}
+              >
+                <Text variant="headingMd">{card.title}</Text>
+                <div style={{ padding: "1rem 0" }}>
+                  {isLoading ? (
+                    <div
+                      style={{
+                        width: "2.5rem",
+                        height: "2.5rem",
+                        backgroundColor: "#d1d5db",
+                        animation: "pulse 1s infinite",
+                        borderRadius: "0.375rem",
+                      }}
+                    ></div>
+                  ) : (
+                    <Text variant="headingLg">{card.value}</Text>
                   )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
-              </BlockStack>
+                </div>
+                <Link
+                  style={{
+                    visibility: card.action ? "visible" : "hidden",
+                    width: "fit-content",
+                  }}
+                  to={card.action ? card.action.link : ""}
+                >
+                  <Button>{card.action ? card.action.text : ""}</Button>
+                </Link>
+              </div>
             </Card>
-          </Layout.Section>
-          <Layout.Section variant="oneThird">
-            <BlockStack gap="500">
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    App template specs
-                  </Text>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Framework
-                      </Text>
-                      <Link
-                        url="https://remix.run"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Remix
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Database
-                      </Text>
-                      <Link
-                        url="https://www.prisma.io/"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Prisma
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Interface
-                      </Text>
-                      <span>
-                        <Link
-                          url="https://polaris.shopify.com"
-                          target="_blank"
-                          removeUnderline
+          </div>
+        ))}
+      </div>
+
+      {/* <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gap: "2rem",
+        }}
+      >
+        <Card>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              minWidth: "15rem",
+            }}
+          >
+            <div style={{ marginBottom: "1rem" }}>
+              <Text variant="headingMd">
+                Top products by wishlist additions
+              </Text>
+            </div>
+            {isLoading ? (
+              <TopProductsSkeleton />
+            ) : dashboardData.topProducts.length ? (
+              dashboardData.topProducts.map((product, i) => (
+                <BlockStack key={i}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.5rem 0",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      {product.imageUrl ? (
+                        <img
+                          style={{ marginRight: "1rem", maxWidth: "2.5rem" }}
+                          src={product.imageUrl}
+                          alt=""
+                        />
+                      ) : (
+                        <span
+                          style={{ fontSize: "1.5rem", marginRight: "1rem" }}
                         >
-                          Polaris
-                        </Link>
-                        {", "}
-                        <Link
-                          url="https://shopify.dev/docs/apps/tools/app-bridge"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          App Bridge
-                        </Link>
-                      </span>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        API
-                      </Text>
+                          <ImageIcon />
+                        </span>
+                      )}
                       <Link
-                        url="https://shopify.dev/docs/api/admin-graphql"
+                        to={product.url}
                         target="_blank"
-                        removeUnderline
+                        style={{ textDecoration: "underline" }}
                       >
-                        GraphQL API
+                        <Text>{product.name}</Text>
                       </Link>
-                    </InlineStack>
-                  </BlockStack>
+                    </div>
+                    <span style={{ paddingRight: "1rem" }}>
+                      <Text>{product.additions}</Text>
+                    </span>
+                  </div>
+                  {i < dashboardData.topProducts.length - 1 ? (
+                    <Divider borderColor="border" />
+                  ) : null}
                 </BlockStack>
-              </Card>
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Next steps
-                  </Text>
-                  <List>
-                    <List.Item>
-                      Build an{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/getting-started/build-app-example"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        {" "}
-                        example app
-                      </Link>{" "}
-                      to get started
-                    </List.Item>
-                    <List.Item>
-                      Explore Shopify’s API with{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphiQL
-                      </Link>
-                    </List.Item>
-                  </List>
-                </BlockStack>
-              </Card>
-            </BlockStack>
-          </Layout.Section>
-        </Layout>
-      </BlockStack> */}
-      <Dashboard/>
-    </Page>
+              ))
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <EmptyState
+                  heading="No products added to Wishlist yet."
+                  image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+                />
+              </div>
+            )}
+          </div>
+        </Card>
+      </div> */}
+    </div>
   );
 }

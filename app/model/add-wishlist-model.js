@@ -7,7 +7,10 @@ const addToWishListSchema = new mongoose.Schema({
 });
 
 const addToWishlistModel =
-  mongoose.models.addtowishlist ||
+  mongoose.models.AddToWishlist ||
   mongoose.model("AddToWishlist", addToWishListSchema);
 
 export default addToWishlistModel;
+
+
+// this is my model

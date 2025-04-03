@@ -2,11 +2,13 @@ import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import addToWishlistModel from "../model/add-wishlist-model";
 import { productDetails as productDetailsQuery } from "../queries/graphql/productData";
-import { customer as customerDetailsQuery } from "../queries/graphql/customerDetails";
+import { customer, customer as customerDetailsQuery } from "../queries/graphql/customerDetails";
 export const loader = async ({ request }) => {
   try {
     const { admin, session } = await authenticate.admin(request);
     const shopURL = session.shop;
+    const customeDetails = await customer()
+    console.log("🚀 ~ loader ~ customeDetails:", customeDetails)
     const wishlistData = await addToWishlistModel.find({
       shopURL,
     });

@@ -52,8 +52,9 @@ const AddtoWishlist = () => {
     fetchWishlist();
   }, [customerId, dynamicProdutId]);
 
-  const handleclick = async (RemoveOne = "RemoveOne") => {
-    console.log("🚀 ~ handleclick ~ customerId:", customerId);
+  const handleclick = async (RemoveOne) => {
+    RemoveOne = "RemoveOne";
+    console.log("🚀 ~ handleclick ~ RemoveOne:", RemoveOne)
     const shopURL = window.location.host;
     const formDataToSend = new FormData();
     formDataToSend.append("shopURL", shopURL);

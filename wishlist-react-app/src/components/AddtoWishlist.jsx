@@ -1,12 +1,12 @@
 import React from "react";
 import Button from "@mui/material/Button";
-import { getProductid } from "../utils/lib";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { NotificationAlert } from "./NotificationAlert";
 import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
-import { getCustomerid } from "../utils/lib";
+import { getProductid } from "../lib/lib";
+import { getCustomerid } from "../lib/lib";
 
 const AddtoWishlist = () => {
   const [open, setOpen] = useState(false);
@@ -14,9 +14,7 @@ const AddtoWishlist = () => {
   const [severity, setSeverity] = useState("success");
   const [wishlist, setWishlist] = useState("");
   const [isAdded, setIsAdded] = useState();
-  console.log("🚀 ~ AddtoWishlist ~ isAdded:", isAdded);
   const dynamicProdutId = getProductid();
-  console.log("🚀 ~ AddtoWishlist ~ dynamicProdutId:", dynamicProdutId);
   const customerId = getCustomerid();
 
   useEffect(() => {

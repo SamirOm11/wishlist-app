@@ -3,20 +3,15 @@ import { createPortal } from "react-dom";
 import IconButton from "@mui/material/IconButton";
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-import { getCustomerid } from "../utils/lib";
+import { getCustomerid } from "../lib/lib";
 import { NotificationAlert } from "./NotificationAlert";
 
 const ProductCardWishlistButton = () => {
   const [wishlist, setWishlist] = useState([]);
   const [productCardNodes, setProductCardNodes] = useState([]);
-  console.log(
-    "🚀 ~ ProductCardWishlistButton ~ productCardNodes:",
-    productCardNodes,
-  );
+
   const [message, setMessage] = useState("");
-  console.log("🚀 ~ ProductCardWishlistButton ~ message:", message);
   const [open, setOpen] = useState(false);
-  console.log("🚀 ~ ProductCardWishlistButton ~ open:", open);
 
   const [severity, setSeverity] = useState("success");
   const [productLinkNodes, setProductLinkNodes] = useState([]);

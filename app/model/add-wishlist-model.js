@@ -12,5 +12,3 @@ const addToWishlistModel =
 
 export default addToWishlistModel;
 
-
-// this is my model

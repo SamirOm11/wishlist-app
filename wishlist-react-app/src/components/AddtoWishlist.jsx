@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
 import { getProductid } from "../lib/lib";
 import { getCustomerid } from "../lib/lib";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const AddtoWishlist = () => {
   const [open, setOpen] = useState(false);
@@ -14,6 +15,7 @@ const AddtoWishlist = () => {
   const [severity, setSeverity] = useState("success");
   const [wishlist, setWishlist] = useState("");
   const [isAdded, setIsAdded] = useState();
+  const [loading, setLoading] = useState(true);
   const dynamicProdutId = getProductid();
   const customerId = getCustomerid();
 
@@ -44,6 +46,8 @@ const AddtoWishlist = () => {
         }
       } catch (error) {
         console.error("Error fetching wishlist:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,7 +56,7 @@ const AddtoWishlist = () => {
 
   const handleclick = async (RemoveOne) => {
     RemoveOne = "RemoveOne";
-    console.log("🚀 ~ handleclick ~ RemoveOne:", RemoveOne)
+    console.log("🚀 ~ handleclick ~ RemoveOne:", RemoveOne);
     const shopURL = window.location.host;
     const formDataToSend = new FormData();
     formDataToSend.append("shopURL", shopURL);
@@ -127,6 +131,7 @@ const AddtoWishlist = () => {
   };
 
   return (
+
     <div>
       {createPortal(
         <NotificationAlert
@@ -138,31 +143,46 @@ const AddtoWishlist = () => {
         document.querySelector("body"),
       )}
 
-      <Button
-        sx={{
-          fontSize: "small",
-          width: "345px",
-          height: "45px",
-          color: "white",
-          backgroundColor: "rgb(255 87 117)",
-        }}
-        variant="outlined"
-        onClick={handleclick}
-      >
-        {isAdded ? (
-          <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
-            <FavoriteIcon style={{ fontSize: "large" }} />
-          </div>
-        ) : (
-          <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
-            <FavoriteBorderIcon style={{ fontSize: "large" }} />
-          </div>
-        )}
+      {loading ? (
+        <Button
+          sx={{
+            fontSize: "small",
+            width: "345px",
+            height: "45px",
+            color: "white",
+            backgroundColor: "rgb(255 87 117)",
+          }}
+          variant="contained"
+          disabled
+        >
+          <CircularProgress size={20} color="inherit" />
+        </Button>
+      ) : (
+        <Button
+          sx={{
+            fontSize: "small",
+            width: "345px",
+            height: "45px",
+            color: "white",
+            backgroundColor: "rgb(255 87 117)",
+          }}
+          variant="contained"
+          onClick={handleclick}
+        >
+          {isAdded ? (
+            <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+              <FavoriteIcon style={{ fontSize: "large" }} />
+            </div>
+          ) : (
+            <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+              <FavoriteBorderIcon style={{ fontSize: "large" }} />
+            </div>
+          )}
 
-        {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
-      </Button>
+          {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
+        </Button>
+      )}
     </div>
   );
 };
-
 export default AddtoWishlist;

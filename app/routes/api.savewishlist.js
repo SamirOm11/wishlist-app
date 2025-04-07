@@ -2,6 +2,7 @@ import { request } from "http";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import addToWIshlistModel from "../model/add-wishlist-model";
+import customerModel from "../model/customer.model";
 
 export const action = async ({ request }) => {
   const { admin, session } = await authenticate.public.appProxy(request);
@@ -15,7 +16,14 @@ export const action = async ({ request }) => {
     const customerId = formData.get("customerId");
     console.log("🚀 ~ action ~ customerId:", customerId);
 
-    console.log("shopURL", shopURL, "productId", productId);
+    let customer = await customerModel.findOne({ customerId, shopURL });
+    if (!customer) {
+      customer = new customerModel({
+        customerId,
+        shopURL
+      });
+      await customer.save();
+    }
 
     const newWishlistItem = new addToWIshlistModel({
       productId,

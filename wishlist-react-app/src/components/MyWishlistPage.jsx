@@ -7,10 +7,11 @@ import { getCustomerid } from "../lib/lib";
 import { addAlltoCart, addtoCart } from "../utils/utils";
 import SimpleBackdrop from "./Fullscreenloader";
 import { NotificationAlert } from "./NotificationAlert";
+import { displayModal } from "../utils/utils";
 
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
-  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct)
+  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct);
   const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
@@ -18,7 +19,7 @@ const MyWishlistPage = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-  // const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = React.useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const wishlistUrl = window.location.href; // Get current URL
 
@@ -132,14 +133,13 @@ const MyWishlistPage = () => {
   };
 
   const handleAddAlltoCart = async (item) => {
-    console.log("🚀 ~ handleAddAlltoCart ~ item:", item)
     if (!item) {
       console.log("No wishlist data available");
       return;
     }
 
     const { error } = await addAlltoCart({
-      wishlistProDucts: [item],
+      wishlistProDucts: item,
     });
 
     if (error) {
@@ -178,6 +178,7 @@ const MyWishlistPage = () => {
         />,
         document.querySelector("body"),
       )}
+      {modalOpen && <displayModal />}
 
       {createPortal(
         <div>

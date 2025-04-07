@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ab16738b33038802313dfb6ee10cd83f"
-application_url = "https://photographers-marshall-guardian-ltd.trycloudflare.com"
+application_url = "https://destroyed-insert-burke-apparatus.trycloudflare.com"
 embedded = true
 name = "Wishlist-app"
 handle = "wishlist-app-318"
@@ -27,13 +27,13 @@ scopes = "read_customers,write_products"
 
 [auth]
 redirect_urls = [
-  "https://photographers-marshall-guardian-ltd.trycloudflare.com/auth/callback",
-  "https://photographers-marshall-guardian-ltd.trycloudflare.com/auth/shopify/callback",
-  "https://photographers-marshall-guardian-ltd.trycloudflare.com/api/auth/callback"
+  "https://destroyed-insert-burke-apparatus.trycloudflare.com/auth/callback",
+  "https://destroyed-insert-burke-apparatus.trycloudflare.com/auth/shopify/callback",
+  "https://destroyed-insert-burke-apparatus.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://photographers-marshall-guardian-ltd.trycloudflare.com"
+url = "https://destroyed-insert-burke-apparatus.trycloudflare.com"
 subpath = "wishlist"
 prefix = "apps"
 

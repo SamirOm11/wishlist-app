@@ -29,6 +29,7 @@ const MyWishlistPage = () => {
         `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customeId}`,
       );
       const result = await response.json();
+      console.log('result: ', result);
       if (result) {
         setLoaderOpen(false);
         setWishlistProduct(result?.wishlistData || []);
@@ -189,7 +190,7 @@ const MyWishlistPage = () => {
               top: "150px",
               right: "110px",
               gap: "10px",
-              zIndex: "9999",
+              zIndex: "99",
             }}
           >
             <Button

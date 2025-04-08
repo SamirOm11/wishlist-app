@@ -53,6 +53,14 @@ const ProductCardWishlistButton = () => {
     productUrl,
     RemoveOne = "RemoveOne",
   ) => {
+    if (!customerId) {
+      setMessage("Please login to use the wishlist");
+      setSeverity("warning");
+      setOpen(true);
+      window.location.href = "/account/login";
+      return;
+    }
+
     const isProductInWishlist = wishlist.some(
       (item) => item.productId === productId,
     );

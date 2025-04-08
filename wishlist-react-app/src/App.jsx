@@ -11,12 +11,13 @@ export default function App() {
 
   return (
     <>
-      {isCustomerLogin ? <ProductCardWishlistButton />: ""}
+      <ProductCardWishlistButton />
 
-      {isCustomerLogin ? renderPortal(<AddtoWishlist />, "add-to-wishlist"):""}
+      {renderPortal(<AddtoWishlist />, "add-to-wishlist")}
 
-      {isCustomerLogin ?
-        renderPortal(<MyWishlistPage />, "my-product-wishlist-id"):""}
+      {isCustomerLogin
+        ? renderPortal(<MyWishlistPage />, "my-product-wishlist-id")
+        : ""}
     </>
   );
 }

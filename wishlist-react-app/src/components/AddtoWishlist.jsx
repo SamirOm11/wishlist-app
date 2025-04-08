@@ -55,6 +55,15 @@ const AddtoWishlist = () => {
   }, [customerId, dynamicProdutId]);
 
   const handleclick = async (RemoveOne) => {
+    if (!customerId) {
+      setMessage("Please login to use the wishlist");
+      setSeverity("warning");
+      setOpen(true);
+      const shopDomain = window.location.hostname;
+      window.location.href = `https://${shopDomain}/account/login`;
+      return;
+    }
+
     RemoveOne = "RemoveOne";
     console.log("🚀 ~ handleclick ~ RemoveOne:", RemoveOne);
     const shopURL = window.location.host;
@@ -126,12 +135,12 @@ const AddtoWishlist = () => {
       }
     }
   };
+
   const handleClose = () => {
     setOpen(false);
   };
 
   return (
-
     <div>
       {createPortal(
         <NotificationAlert

@@ -63,7 +63,7 @@ export const addAlltoCart = async ({ wishlistProDucts }) => {
       "Content-Type": "application/json",
     };
 
-    const items = wishlistProDucts.map((product) => {
+    const items = wishlistProDucts.flatMap((product) => {
       console.log("🚀 ~ items=wishlistProDucts.flatMap ~ product:", product);
 
       if (product?.variants?.edges?.length) {
@@ -118,69 +118,3 @@ export const addAlltoCart = async ({ wishlistProDucts }) => {
   }
 };
 
-// export const displayModal = async () => {
-//   return (
-//     <div
-//       style={{
-//         position: "fixed",
-//         top: "50%",
-//         left: "50%",
-//         transform: "translate(-50%, -50%)",
-//         zIndex: 1000,
-//         backgroundColor: "white",
-//         borderRadius: "8px",
-//         border: "1px solid rgb(228 228 228)",
-//         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-//         width: "1090px",
-//         padding: "20px",
-//       }}
-//       role="dialog"
-//       aria-modal="true"
-//     >
-//       {/* Modal Header */}
-//       <div
-//         style={{
-//           display: "flex",
-//           justifyContent: "end",
-//           alignItems: "end",
-//           marginBottom: "12px",
-//         }}
-//       >
-//         <button
-//           style={{
-//             background: "none",
-//             color: "#333",
-//             cursor: "pointer",
-//             transition: "color 0.2s ease",
-//             margin: "0px",
-//             padding: "0px",
-//             border: "none",
-//             height: "30px",
-//             width: "30px",
-//             fontSize: "30px",
-//           }}
-//           onClick={handleClose}
-//           onMouseEnter={(e) => (e.target.style.color = "#ff6b6b")}
-//           onMouseLeave={(e) => (e.target.style.color = "#333")}
-//           aria-label="Close"
-//         >
-//           &times;
-//         </button>
-//       </div>
-
-//       {/* Modal Body */}
-//       <div
-//         style={{
-//           padding: "20px 24px",
-//           maxHeight: "calc(80vh - 100px)",
-//           overflowY: "auto",
-//           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-//           fontSize: "16px",
-//           color: "#555",
-//         }}
-//       >
-//         <div id="stensiled-review-popup">Hello</div>
-//       </div>
-//     </div>
-//   );
-// };

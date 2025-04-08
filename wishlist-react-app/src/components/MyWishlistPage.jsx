@@ -7,11 +7,10 @@ import { getCustomerid } from "../lib/lib";
 import { addAlltoCart, addtoCart } from "../utils/utils";
 import SimpleBackdrop from "./Fullscreenloader";
 import { NotificationAlert } from "./NotificationAlert";
-import { displayModal } from "../utils/utils";
+import { WishlistModal } from "./Modal/Model";
 
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
-  console.log("🚀 ~ MyWishlistPage ~ wishlistProDuct:", wishlistProDuct);
   const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
@@ -19,21 +18,9 @@ const MyWishlistPage = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const wishlistUrl = window.location.href; // Get current URL
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
+  const wishlistUrl = window.location.href;
 
   const fetchWishlistProductData = async () => {
     setLoaderOpen(true);
@@ -66,6 +53,7 @@ const MyWishlistPage = () => {
       setShowPopup(true);
     }
   };
+
   //===============================OR===============================
   const copyToClipboard = () => {
     navigator.clipboard.writeText(wishlistUrl);
@@ -158,6 +146,9 @@ const MyWishlistPage = () => {
     setOpen(false);
   };
 
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
+
   useEffect(() => {
     fetchWishlistProductData();
   }, []);
@@ -178,7 +169,6 @@ const MyWishlistPage = () => {
         />,
         document.querySelector("body"),
       )}
-      {modalOpen && <displayModal />}
 
       {createPortal(
         <div>
@@ -192,7 +182,6 @@ const MyWishlistPage = () => {
           ) : (
             ""
           )}
-
           <div
             style={{
               display: "flex",
@@ -200,6 +189,7 @@ const MyWishlistPage = () => {
               top: "150px",
               right: "110px",
               gap: "10px",
+              zIndex: "9999",
             }}
           >
             <Button
@@ -266,7 +256,7 @@ const MyWishlistPage = () => {
                 <div className="wishlist-actions">
                   <button
                     onClick={() => {
-                      handleDeleteWishlist("RemoveOne", item);
+                      openModal();
                     }}
                     className="remove-button"
                   >
@@ -281,6 +271,16 @@ const MyWishlistPage = () => {
                   </button>
                 </div>
               </div>
+              {isOpen &&
+                createPortal(
+                  <WishlistModal
+                    closeModal={closeModal}
+                    handleDeleteWishlist={() =>
+                      handleDeleteWishlist("RemoveOne", item)
+                    }
+                  />,
+                  document.querySelector("body"),
+                )}
             </div>
           ))}
         </div>

@@ -6,6 +6,7 @@ import { productDetails as productDetailsQuery } from "../queries/graphql/produc
 export const loader = async ({ request }) => {
   try {
     const { admin, session } = await authenticate.public.appProxy(request);
+    console.log("🚀 ~ loader ~ admin:", admin)
     const url = new URL(request.url);
     console.log("🚀 ~ loader ~ url:", url)
     const shopURL = url.searchParams.get("shopURL");

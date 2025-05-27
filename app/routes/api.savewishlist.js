@@ -32,6 +32,7 @@ export const action = async ({ request }) => {
     });
 
     const SavedWishlistData = await newWishlistItem.save();
+    console.log('SavedWishlistData: ', SavedWishlistData);
     console.log("Product added to wishlist");
 
     return json(

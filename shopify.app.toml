@@ -1,14 +1,10 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ab16738b33038802313dfb6ee10cd83f"
-application_url = "https://atmospheric-mia-seattle-berlin.trycloudflare.com"
+application_url = "https://furnished-dee-critical-reference.trycloudflare.com"
 embedded = true
 name = "Wishlist-app"
 handle = "wishlist-app-318"
-
-[build]
-automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-01"
@@ -27,15 +23,19 @@ scopes = "read_customers,write_products"
 
 [auth]
 redirect_urls = [
-  "https://atmospheric-mia-seattle-berlin.trycloudflare.com/auth/callback",
-  "https://atmospheric-mia-seattle-berlin.trycloudflare.com/auth/shopify/callback",
-  "https://atmospheric-mia-seattle-berlin.trycloudflare.com/api/auth/callback"
+  "https://furnished-dee-critical-reference.trycloudflare.com/auth/callback",
+  "https://furnished-dee-critical-reference.trycloudflare.com/auth/shopify/callback",
+  "https://furnished-dee-critical-reference.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://atmospheric-mia-seattle-berlin.trycloudflare.com"
+url = "https://furnished-dee-critical-reference.trycloudflare.com"
 subpath = "wishlist"
 prefix = "apps"
 
 [pos]
 embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true

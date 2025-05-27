@@ -8,9 +8,12 @@ import { addAlltoCart, addtoCart } from "../utils/utils";
 import SimpleBackdrop from "./Fullscreenloader";
 import { NotificationAlert } from "./NotificationAlert";
 import { WishlistModal } from "./Modal/Model";
+import WishlistLauncher from "./WishlistLauncher";
+import { useWishlist } from "./WishlistContext";
 
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
+  console.log("wishlistProDuct:", wishlistProDuct);
   const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
@@ -20,7 +23,11 @@ const MyWishlistPage = () => {
   const [severity, setSeverity] = useState("success");
   const [isOpen, setIsOpen] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const wishlistProductCount = wishlistProDuct?.length || 0;
   const wishlistUrl = window.location.href;
+  const { setWishlistCount } = useWishlist();
+  setWishlistCount(wishlistProductCount);
+
 
   const fetchWishlistProductData = async () => {
     setLoaderOpen(true);
@@ -29,7 +36,7 @@ const MyWishlistPage = () => {
         `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customeId}`,
       );
       const result = await response.json();
-      console.log('result: ', result);
+      console.log("result: ", result);
       if (result) {
         setLoaderOpen(false);
         setWishlistProduct(result?.wishlistData || []);
@@ -103,6 +110,7 @@ const MyWishlistPage = () => {
       console.log("No wishlist data available");
       return;
     }
+    setLoaderOpen(true);
 
     const { error } = await addtoCart({
       wishlistProDucts: [item],
@@ -114,6 +122,7 @@ const MyWishlistPage = () => {
       setSeverity("error");
       setOpen(true);
     } else {
+      setLoaderOpen(false);
       setMessage("Product successfully added to cart!");
       setSeverity("success");
       setOpen(true);
@@ -235,7 +244,9 @@ const MyWishlistPage = () => {
             document.querySelector("body"),
           )
         : isWishlistEmpty && (
-            <h2 className="Empty-Wishlist-Text">Wishlist is Empty!</h2>
+            <h2 style={{ paddingTop: "120px" }} className="Empty-Wishlist-Text">
+              Wishlist is Empty!
+            </h2>
           )}
 
       {wishlistProDuct.length ? (

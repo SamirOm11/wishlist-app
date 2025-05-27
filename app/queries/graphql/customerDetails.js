@@ -8,3 +8,4 @@ export const customer = `query getCustomers ($customerIds: [ID!]!){
 }
   }`;
 console.log("🚀 ~ customer ~ customer:", customer);
+ 

@@ -8,51 +8,60 @@ import { useState, useEffect } from "react";
 import { getProductid } from "../lib/lib";
 import { getCustomerid } from "../lib/lib";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useWishlist } from "./WishlistContext";
 
 const AddtoWishlist = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-  const [wishlist, setWishlist] = useState("");
+  const [wishlist, setWishlist] = useState([]);
+  console.log("wishlist:", wishlist.length);
   const [isAdded, setIsAdded] = useState();
   const [loading, setLoading] = useState(true);
   const dynamicProdutId = getProductid();
   const customerId = getCustomerid();
+  const { setWishlistCount } = useWishlist();
 
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        const response = await fetch(
-          `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
-        );
-        const result = await response.json();
-        console.log("🚀 ~ fetchWishlist ~ result:", result);
+  const fetchWishlist = async () => {
+    try {
+      const response = await fetch(
+        `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
+          { cache: "force-cache" } 
+      );
+      const result = await response.json();
+      console.log("🚀 ~ fetchWishlist ~ result:", result);
 
-        if (result.success) {
-          console.log("Inside The result.success");
-          console.log("result.wishlistdata", result.wishlistdata);
-          if (Array.isArray(result.wishlistdata)) {
-            const isProductInWishlist = result.wishlistdata.some(
-              (product) => product.productId === dynamicProdutId,
-            );
-            console.log(
-              "🚀 ~ fetchWishlist ~ isProductInWishlist:",
-              isProductInWishlist,
-            );
-            setIsAdded(isProductInWishlist);
-          } else {
-            console.warn("wishlistData is not an array:", result.wishlistdata);
-          }
+      if (result.success) {
+        console.log("Inside The result.success");
+        console.log("result.wishlistdata", result.wishlistdata);
+        if (Array.isArray(result.wishlistdata)) {
+          const isProductInWishlist = result.wishlistdata.some(
+            (product) => product.productId === dynamicProdutId,
+          );
+          console.log(
+            "🚀 ~ fetchWishlist ~ isProductInWishlist:",
+            isProductInWishlist,
+          );
+          setWishlist(result.wishlistdata);
+          setIsAdded(isProductInWishlist);
+        } else {
+          console.warn("wishlistData is not an array:", result.wishlistdata);
         }
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-      } finally {
-        setLoading(false);
       }
-    };
-
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchWishlist();
   }, [customerId, dynamicProdutId]);
+
+  useEffect(() => {
+    console.log("called ");
+    setWishlistCount(wishlist.length);
+  }, [wishlist]);
 
   const handleclick = async (RemoveOne) => {
     if (!customerId) {
@@ -83,6 +92,15 @@ const AddtoWishlist = () => {
         console.log("🚀 ~ handleclick ~ response:", response);
         const result = await response.json();
         if (result.success) {
+          setWishlist((prev) => {
+            // dynamicProdutId isse match hone wale product ko chodkar kar saare product dega
+            const newWishlist = prev.filter(
+              (item) => item.productId !== dynamicProdutId,
+            );
+            console.log("newWishlist:", newWishlist);
+            setWishlistCount(newWishlist.length);
+            return newWishlist;
+          });
           setIsAdded(false);
           setMessage("Product removed from wishlist!");
           setSeverity("success");
@@ -114,10 +132,25 @@ const AddtoWishlist = () => {
         }
 
         const result = await response.json();
-        setWishlist(result?.wishlistData);
+        // setWishlist(result?.wishlistData);
+
         console.log("Result: ", result);
 
         if (result.success) {
+          if (Array.isArray(result.wishlistData)) {
+            setWishlist(result.wishlistData);
+            setWishlistCount(result.wishlistData.length);
+          } else {
+            // Single item case - add to existing wishlist
+            setWishlist((prev) => {
+              const newWishlist = [
+                ...(Array.isArray(prev) ? prev : []),
+                result.wishlistData,
+              ];
+              setWishlistCount(newWishlist.length);
+              return newWishlist;
+            });
+          }
           setMessage("Product added to wishlist!");
           setSeverity("success");
           setIsAdded(true);

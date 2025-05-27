@@ -5,22 +5,22 @@ import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import { getCustomerid } from "../lib/lib";
 import { NotificationAlert } from "./NotificationAlert";
+import { useWishlist } from "./WishlistContext";
 
 const ProductCardWishlistButton = () => {
   const [wishlist, setWishlist] = useState([]);
   const [productCardNodes, setProductCardNodes] = useState([]);
-
+  console.log("productCardNodes", productCardNodes);
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
-
   const [severity, setSeverity] = useState("success");
   const [productLinkNodes, setProductLinkNodes] = useState([]);
-
   const customerId = getCustomerid();
-
   const productLinkNodeSelector =
     ".card-wrapper .card > .card__content .card__information .card__heading a";
   const productCardWrapperSelector = ".grid__item .card-wrapper";
+  const { setWishlistCount } = useWishlist();
+  setWishlistCount(wishlist.length);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -53,6 +53,7 @@ const ProductCardWishlistButton = () => {
     productUrl,
     RemoveOne = "RemoveOne",
   ) => {
+    console.log("productId---", productId);
     if (!customerId) {
       setMessage("Please login to use the wishlist");
       setSeverity("warning");
@@ -64,7 +65,7 @@ const ProductCardWishlistButton = () => {
     const isProductInWishlist = wishlist.some(
       (item) => item.productId === productId,
     );
-
+    console.log("isProductInWishlist", isProductInWishlist);
     const shopURL = window.location.host;
     const formDataToSend = new FormData();
     formDataToSend.append("shopURL", shopURL);
@@ -82,7 +83,11 @@ const ProductCardWishlistButton = () => {
         );
         const result = await response.json();
         console.log("🚀 ~ ProductCardWishlistButton ~ result:", result);
-
+        if (result) {
+          setMessage("Product successfully Deleted from wishlist");
+          setSeverity("success");
+          setOpen(true);
+        }
         setWishlist((prev) =>
           prev.filter((item) => item.productId !== productId),
         );
@@ -151,26 +156,35 @@ const ProductCardWishlistButton = () => {
                 top: "10px",
                 right: "10px",
                 zIndex: 10,
+                backgroundColor: "white",
+                height: "39px",
+                width: "40px",
+                borderRadius: "50%",
+                display: "inlineBlock",
               }}
             >
-              <IconButton
-                sx={{ fontSize: "20px" }}
-                onClick={() =>
-                  handleWishlistToggle(productId, product?.name, productUrl)
-                }
-                style={{ color: isProductInWishlist ? "red" : "grey" }}
-                aria-label={
-                  isProductInWishlist
-                    ? "Remove from Wishlist"
-                    : "Add to Wishlist"
-                }
-              >
-                {isProductInWishlist ? (
-                  <Favorite sx={{ fontSize: "x-large" }} />
-                ) : (
-                  <FavoriteBorder sx={{ fontSize: "x-large" }} />
-                )}
-              </IconButton>
+              {product && (
+                <IconButton
+                  sx={{
+                    fontSize: "20px",
+                  }}
+                  onClick={() =>
+                    handleWishlistToggle(productId, product?.name, productUrl)
+                  }
+                  style={{ color: isProductInWishlist ? "red" : "grey" }}
+                  aria-label={
+                    isProductInWishlist
+                      ? "Remove from Wishlist"
+                      : "Add to Wishlist"
+                  }
+                >
+                  {isProductInWishlist ? (
+                    <Favorite sx={{ fontSize: "x-large" }} />
+                  ) : (
+                    <FavoriteBorder sx={{ fontSize: "x-large" }} />
+                  )}
+                </IconButton>
+              )}
             </div>,
             productCardNode,
           );
@@ -197,10 +211,10 @@ const ProductCardWishlistButton = () => {
           const isProductInWishlist = wishlist.some(
             (item) => item.productId === productGid,
           );
-          console.log(
-            "🚀 ~ ProductCardWishlistButton ~ isProductInWishlist:",
-            isProductInWishlist,
-          );
+          // console.log(
+          //   "🚀 ~ ProductCardWishlistButton ~ isProductInWishlist:",
+          //   isProductInWishlist,
+          // );
 
           return createPortal(
             <div

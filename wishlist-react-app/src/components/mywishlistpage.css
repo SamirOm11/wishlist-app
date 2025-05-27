@@ -3,9 +3,9 @@
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
-  padding: 20px;
-  /* padding-top: 117px; */
-  /* padding-bottom: 117px; */
+  /* padding: 20px; */
+  padding-top: 117px;
+  padding-bottom: 117px;
 }
 
 

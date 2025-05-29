@@ -5,7 +5,6 @@ import { useWishlist } from "./WishlistContext";
 
 const WishlistLauncher = () => {
   const { wishlistCount } = useWishlist();
-  console.log("wishlistCount==:", wishlistCount);
 
   return (
     <div className="wishlist-launcher">

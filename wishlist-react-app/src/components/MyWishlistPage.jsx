@@ -6,29 +6,24 @@ import Button from "@mui/material/Button";
 import { getCustomerid } from "../lib/lib";
 import { addAlltoCart, addtoCart } from "../utils/utils";
 import SimpleBackdrop from "./Fullscreenloader";
-import { NotificationAlert } from "./NotificationAlert";
+import toast from "react-hot-toast";
 import { WishlistModal } from "./Modal/Model";
 import WishlistLauncher from "./WishlistLauncher";
 import { useWishlist } from "./WishlistContext";
 
+
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
-  console.log("wishlistProDuct:", wishlistProDuct);
   const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
   const [loaderOpen, setLoaderOpen] = React.useState(false);
   const shopURL = window.location.host;
   const customeId = getCustomerid();
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("success");
-  const [isOpen, setIsOpen] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
+  const [openModalProductId, setOpenModalProductId] = useState(null);
   const wishlistProductCount = wishlistProDuct?.length || 0;
   const wishlistUrl = window.location.href;
   const { setWishlistCount } = useWishlist();
   setWishlistCount(wishlistProductCount);
-
-
+   
   const fetchWishlistProductData = async () => {
     setLoaderOpen(true);
     try {
@@ -36,13 +31,12 @@ const MyWishlistPage = () => {
         `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customeId}`,
       );
       const result = await response.json();
-      console.log("result: ", result);
       if (result) {
         setLoaderOpen(false);
         setWishlistProduct(result?.wishlistData || []);
       }
     } catch (error) {
-      console.log("🚀 ~ fetchWishlistProductData ~ error:", error);
+      console.log("fetchWishlistProductData ~ error:", error);
     } finally {
       setLoaderOpen(false);
     }
@@ -63,13 +57,12 @@ const MyWishlistPage = () => {
   };
 
   //===============================OR===============================
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(wishlistUrl);
-    alert("Wishlist link copied!");
-  };
+  // const copyToClipboard = () => {
+  //   navigator.clipboard.writeText(wishlistUrl);
+  //   alert("Wishlist link copied!");
+  // };
 
   const handleDeleteWishlist = async (RemoveOne, item) => {
-    console.log("🚀 ~ handleDeleteWishlist ~ item:", item);
     setLoaderOpen(true);
 
     try {
@@ -80,9 +73,7 @@ const MyWishlistPage = () => {
         },
       );
       const result = await response.json();
-      console.log("🚀 ~ handleDeleteWishlist ~ result:", result);
       if (result) {
-        console.log("INSIDE");
         if (RemoveOne === "RemoveOne") {
           // Remove product from wishlist in state after successful deletion
           setWishlistProduct((prevWishlist) => {
@@ -93,13 +84,9 @@ const MyWishlistPage = () => {
         } else {
           setWishlistProduct([]);
         }
-
-        setMessage("Product successfully deleted");
-        setSeverity("success");
-        setOpen(true);
+        toast.success("Product successfully deleted");
       }
     } catch (error) {
-      console.log("🚀 ~ handleDeleteWishlist ~ error:", error);
     } finally {
       setLoaderOpen(false);
     }
@@ -107,7 +94,6 @@ const MyWishlistPage = () => {
 
   const handleAddToCart = async (item) => {
     if (!item) {
-      console.log("No wishlist data available");
       return;
     }
     setLoaderOpen(true);
@@ -117,22 +103,15 @@ const MyWishlistPage = () => {
     });
 
     if (error) {
-      console.log("Error during Add to Cart:", error);
-      setMessage("Error during Add to Cart:");
-      setSeverity("error");
-      setOpen(true);
+      toast.error("Unable to add item to cart. Please try again.");
     } else {
+      toast.success("Product successfully added to cart!");
       setLoaderOpen(false);
-      setMessage("Product successfully added to cart!");
-      setSeverity("success");
-      setOpen(true);
-      console.log("Successfully added to cart");
     }
   };
 
   const handleAddAlltoCart = async (item) => {
     if (!item) {
-      console.log("No wishlist data available");
       return;
     }
 
@@ -141,23 +120,14 @@ const MyWishlistPage = () => {
     });
 
     if (error) {
-      console.log("Error during Add to Cart:", error);
-      setMessage("Error during Add to Cart:");
-      setSeverity("error");
-      setOpen(true);
+      toast.error("Unable to add item to cart. Please try again.");
     } else {
-      setMessage("Product successfully added to cart!");
-      setSeverity("success");
-      setOpen(true);
-      console.log("Successfully added to cart");
+      toast.success("Product's successfully added to cart!");
     }
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
 
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
+  const openModal = (productId) => setOpenModalProductId(productId);
+  const closeModal = () => setOpenModalProductId(null);
 
   useEffect(() => {
     fetchWishlistProductData();
@@ -170,73 +140,46 @@ const MyWishlistPage = () => {
 
   return (
     <>
-      {createPortal(
-        <NotificationAlert
-          open={open}
-          handleClose={handleClose}
-          severity={severity}
-          message={message}
-        />,
-        document.querySelector("body"),
+      {!customeId && (
+        <div style={{ width: "100%", backgroundColor: "black" }}>
+          <h1 className="wishlist-login-message">
+            Please login to save this Wishlist to your Account. (This is
+            optional)
+          </h1>
+        </div>
       )}
-
-      {createPortal(
-        <div>
-          {!customeId ? (
-            <div style={{ width: "500px", backgroundColor: "black" }}>
-              <h1 className="wishlist-login-message">
-                Please login to save this Wishlist to your Account. (This is
-                optional)
-              </h1>
-            </div>
-          ) : (
-            ""
-          )}
-          <div
-            style={{
-              display: "flex",
-              position: "absolute",
-              top: "150px",
-              right: "110px",
-              gap: "10px",
-              zIndex: "99",
-            }}
-          >
-            <Button
-              sx={{
-                fontSize: "12px",
-                backgroundColor: "black",
-                color: "white",
-              }}
-              onClick={() => handleShareWishlist()}
-            >
-              Share Wishlist
-            </Button>
-            <Button
-              sx={{
-                fontSize: "12px",
-                backgroundColor: "black",
-                color: "white",
-              }}
-              onClick={() => handleDeleteWishlist("clearAll", 0)}
-            >
-              Clear All
-            </Button>
-            <Button
-              sx={{
-                fontSize: "12px",
-                backgroundColor: "black",
-                color: "white",
-              }}
-              onClick={() => handleAddAlltoCart(wishlistProDuct)}
-            >
-              Add All
-            </Button>
-          </div>
-        </div>,
-
-        document.querySelector("body"),
-      )}
+      <div className="wishlist-actions-bar">
+        <Button
+          sx={{
+            fontSize: "12px",
+            backgroundColor: "black",
+            color: "white",
+          }}
+          onClick={() => handleDeleteWishlist("clearAll", 0)}
+        >
+          Clear All
+        </Button>
+        <Button
+          sx={{
+            fontSize: "12px",
+            backgroundColor: "black",
+            color: "white",
+          }}
+          onClick={() => handleAddAlltoCart(wishlistProDuct)}
+        >
+          Add All
+        </Button>
+        <Button
+          sx={{
+            fontSize: "12px",
+            backgroundColor: "black",
+            color: "white",
+          }}
+          onClick={() => handleShareWishlist()}
+        >
+          Share Wishlist
+        </Button>
+      </div>
 
       {loaderOpen
         ? createPortal(
@@ -267,9 +210,7 @@ const MyWishlistPage = () => {
                 <p className="wishlist-product-title">{item.title}</p>
                 <div className="wishlist-actions">
                   <button
-                    onClick={() => {
-                      openModal();
-                    }}
+                    onClick={() => openModal(item.id)}
                     className="remove-button"
                   >
                     Remove
@@ -283,7 +224,7 @@ const MyWishlistPage = () => {
                   </button>
                 </div>
               </div>
-              {isOpen &&
+              {openModalProductId === item.id &&
                 createPortal(
                   <WishlistModal
                     closeModal={closeModal}

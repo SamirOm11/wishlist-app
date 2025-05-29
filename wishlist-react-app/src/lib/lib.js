@@ -1,16 +1,13 @@
 export const getProductid = () => {
-  if (window.ShopifyAnalytics.meta.page.resourceId)
-    return window.ShopifyAnalytics?.meta?.page?.resourceId
-      ? `gid://shopify/Product/${window.ShopifyAnalytics.meta.page.resourceId}`
-      : window.ShopifyAnalytics?.meta?.product?.gid;
+  const resourceId = window.ShopifyAnalytics?.meta?.page?.resourceId;
+  const productGid = window.ShopifyAnalytics?.meta?.product?.gid;
+  if (resourceId) return `gid://shopify/Product/${resourceId}`;
+  if (productGid) return productGid;
   return undefined;
 };
 
 export const getCustomerid = () => {
-  if (window.ShopifyAnalytics.meta.page.customerId)
-    return window.ShopifyAnalytics.meta.page.customerId
-      ? `gid://shopify/Customer/${window.ShopifyAnalytics.meta.page.customerId}`
-      : window.ShopifyAnalytics.meta.page.customerId;
-      return undefined;
+  const customerId = window.ShopifyAnalytics?.meta?.page?.customerId;
+  if (customerId) return `gid://shopify/Customer/${customerId}`;
+  return undefined;
 };
-

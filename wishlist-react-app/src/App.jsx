@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import ProductCardWishlistButton from "./components/ProductCardWishlistButton";
 import { getCustomerid } from "./lib/lib";
 import WishlistLauncher from "./components/WishlistLauncher";
-import {WishlistProvider} from "./components/WishlistContext";
+import { WishlistProvider } from "./components/WishlistContext";
+import CustomToaster from "./components/CustomToaster";
 
 export default function App() {
   const isCustomerLogin = getCustomerid();
@@ -13,6 +14,7 @@ export default function App() {
 
   return (
     <>
+      <CustomToaster />
       <WishlistProvider>
         <ProductCardWishlistButton />
 

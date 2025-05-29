@@ -11,7 +11,6 @@ import { WishlistModal } from "./Modal/Model";
 import WishlistLauncher from "./WishlistLauncher";
 import { useWishlist } from "./WishlistContext";
 
-
 const MyWishlistPage = () => {
   const [wishlistProDuct, setWishlistProduct] = useState("");
   const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
@@ -23,7 +22,7 @@ const MyWishlistPage = () => {
   const wishlistUrl = window.location.href;
   const { setWishlistCount } = useWishlist();
   setWishlistCount(wishlistProductCount);
-   
+
   const fetchWishlistProductData = async () => {
     setLoaderOpen(true);
     try {
@@ -104,6 +103,7 @@ const MyWishlistPage = () => {
 
     if (error) {
       toast.error("Unable to add item to cart. Please try again.");
+         setLoaderOpen(false);
     } else {
       toast.success("Product successfully added to cart!");
       setLoaderOpen(false);
@@ -121,6 +121,7 @@ const MyWishlistPage = () => {
 
     if (error) {
       toast.error("Unable to add item to cart. Please try again.");
+      setLoaderOpen(false);
     } else {
       toast.success("Product's successfully added to cart!");
     }

@@ -103,7 +103,7 @@ const MyWishlistPage = () => {
 
     if (error) {
       toast.error("Unable to add item to cart. Please try again.");
-         setLoaderOpen(false);
+      setLoaderOpen(false);
     } else {
       toast.success("Product successfully added to cart!");
       setLoaderOpen(false);
@@ -170,16 +170,36 @@ const MyWishlistPage = () => {
         >
           Add All
         </Button>
-        <Button
-          sx={{
-            fontSize: "12px",
-            backgroundColor: "black",
-            color: "white",
-          }}
+        <button
           onClick={() => handleShareWishlist()}
+          className="share-button"
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            marginLeft: "8px",
+          }}
+          aria-label="Share Wishlist"
         >
-          Share Wishlist
-        </Button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#000"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        </button>
       </div>
 
       {loaderOpen
@@ -205,23 +225,45 @@ const MyWishlistPage = () => {
                 />
               </div>
               <div className="wishlist-info">
+                <p className="wishlist-product-title">{item.title}</p>
                 <p className="wishlist-product-price">
                   ₹{item.priceRangeV2?.minVariantPrice?.amount}
                 </p>
-                <p className="wishlist-product-title">{item.title}</p>
                 <div className="wishlist-actions">
-                  <button
-                    onClick={() => openModal(item.id)}
-                    className="remove-button"
-                  >
-                    Remove
-                  </button>
                   <button
                     onClick={() => handleAddToCart(item)}
                     className="add-to-cart-button"
                   >
                     <ShoppingCartIcon />
                     Add to Cart
+                  </button>
+                  <button
+                    onClick={() => openModal(item.id)}
+                    className="remove-button"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                    aria-label="Remove"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#000"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                      <line x1="10" y1="11" x2="10" y2="17" />
+                      <line x1="14" y1="11" x2="14" y2="17" />
+                    </svg>
                   </button>
                 </div>
               </div>

@@ -130,47 +130,36 @@ const AddtoWishlist = () => {
   };
 
   return (
-    <div>
-      {loading ? (
-        <Button
-          sx={{
-            fontSize: "small",
-            width: "345px",
-            height: "45px",
-            color: "white",
-            backgroundColor: "rgb(255 87 117)",
-          }}
-          variant="contained"
-          disabled
-        >
-          <CircularProgress size={20} color="inherit" />
-        </Button>
-      ) : (
-        <Button
-          sx={{
-            fontSize: "small",
-            width: "345px",
-            height: "45px",
-            color: "white",
-            backgroundColor: "rgb(255 87 117)",
-          }}
-          variant="contained"
-          onClick={handleclick}
-        >
-          {isAdded ? (
-            <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
-              <FavoriteIcon style={{ fontSize: "large" }} />
-            </div>
-          ) : (
-            <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
-              <FavoriteBorderIcon style={{ fontSize: "large" }} />
-            </div>
-          )}
+  <div>
+  <Button
+    sx={{
+      fontSize: "small",
+      width: "345px",
+      height: "45px",
+      color: "white",
+      backgroundColor: loading ? "rgba(255, 87, 117, 0.5)" : "rgb(255, 87, 117)",
+      "&.Mui-disabled": {
+        backgroundColor: "rgba(255, 87, 117, 0.5)", // This ensures the color stays when disabled
+        color: "white" // Keep text color white when disabled
+      }
+    }}
+    variant="contained"
+    disabled={loading}
+    onClick={handleclick}
+  >
+    {isAdded ? (
+      <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+        <FavoriteIcon style={{ fontSize: "large" }} />
+      </div>
+    ) : (
+      <div style={{ paddingRight: "10px", paddingTop: "inherit" }}>
+        <FavoriteBorderIcon style={{ fontSize: "large" }} />
+      </div>
+    )}
 
-          {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
-        </Button>
-      )}
-    </div>
+    {isAdded ? "Remove from Wishlist" : "Add to Wishlist"}
+  </Button>
+</div>
   );
 };
 export default AddtoWishlist;

@@ -1,0 +1,37 @@
+.add-to-wishlist-btn {
+  font-size: small;
+  width: 345px;
+  height: 45px;
+  color: white;
+  background-color: rgb(255, 87, 117);
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: opacity 0.3s;
+}
+
+.add-to-wishlist-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-to-wishlist-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 600px) {
+  .add-to-wishlist-btn {
+    width: 90vw;
+    min-width: 0;
+    height: 40px;
+    font-size: 14px;
+    gap: 6px;
+  }
+  .add-to-wishlist-btn span {
+    font-size: 15px !important;
+  }
+}

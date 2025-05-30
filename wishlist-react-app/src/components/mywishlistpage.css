@@ -1,18 +1,18 @@
 .wishlist-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 25px;
   justify-content: center;
   /* padding: 20px; */
-  padding-top: 50px;
-  padding-bottom: 50px;
+  padding-top: 18px;
+  padding-bottom: 18px;
 }
 
 .wishlist-card {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 243px;
+  width: 215px;
   overflow: hidden;
   text-align: center;
   transition: transform 0.2s ease-in-out;
@@ -42,14 +42,15 @@
 }
 
 .wishlist-info {
-  padding: 18px;
+  padding: 7px 5px 10px 5px;
 }
 
 .wishlist-product-title {
   font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 10px;
+  margin: 0px 0 12px 0px;
+  /* margin-bottom: 10px; */
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -59,14 +60,14 @@
   font-size: 18px;
   font-weight: 500;
   color: #007bff;
-  margin: 0 0 8px 0; /* Add space below price */
+  margin: -7px 0 8px 0; /* Add space below price */
   display: block;
 }
 
 .wishlist-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
+  gap: 20px;
 }
 
 .remove-button,

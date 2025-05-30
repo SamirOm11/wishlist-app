@@ -11,6 +11,8 @@ const ProductCardWishlistButton = () => {
   const [wishlist, setWishlist] = useState([]);
   const [productCardNodes, setProductCardNodes] = useState([]);
   const [productLinkNodes, setProductLinkNodes] = useState([]);
+  const [isloading, setLoading] = useState(false);
+  console.log('isloading:', isloading);
   const customerId = getCustomerid();
   const productLinkNodeSelector =
     ".card-wrapper .card > .card__content .card__information .card__heading a";
@@ -19,14 +21,20 @@ const ProductCardWishlistButton = () => {
   setWishlistCount(wishlist.length);
 
   useEffect(() => {
-    const fetchWishlist = async () => {
+  const fetchWishlist = async () => {
+    try {
       const response = await fetch(
         `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
       );
       const result = await response.json();
-
-      setWishlist(result.wishlistdata);
-    };
+      if (result) {
+        setWishlist(result.wishlistdata);
+        setLoading(true);
+      }
+    } catch (error) {
+      setLoading(false);
+    } 
+  };
 
     fetchWishlist();
   }, []);
@@ -130,12 +138,15 @@ const ProductCardWishlistButton = () => {
                 width: "40px",
                 borderRadius: "50%",
                 display: "inlineBlock",
+                opacity: isloading ? 1 : 0.5,
+                pointerEvents: isloading ? "auto" : "none",
               }}
             >
               <IconButton
                 sx={{
                   fontSize: "20px",
                 }}
+                disabled={!isloading}
                 onClick={() =>
                   handleWishlistToggle(productId, product?.name, productUrl)
                 }

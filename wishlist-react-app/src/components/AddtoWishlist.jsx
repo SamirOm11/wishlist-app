@@ -8,6 +8,7 @@ import { getProductid } from "../lib/lib";
 import { getCustomerid } from "../lib/lib";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useWishlist } from "./WishlistContext";
+import { getLocalWishlistState, setLocalWishlistState } from "../utils/wishlistlocalstorage";
 
 const AddtoWishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -16,6 +17,19 @@ const AddtoWishlist = () => {
   const dynamicProdutId = getProductid();
   const customerId = getCustomerid();
   const { setWishlistCount } = useWishlist();
+
+  // Initialize wishlist state from local storage
+  useEffect(() => {
+    const localWishlistState = getLocalWishlistState(dynamicProdutId);
+    console.log('localWishlistState: ', localWishlistState);
+    
+    if (localWishlistState) {
+      setIsAdded(localWishlistState);
+    }
+  }, [dynamicProdutId]);
+
+
+
 
   const fetchWishlist = async () => {
     try {
@@ -31,6 +45,7 @@ const AddtoWishlist = () => {
           );
           setWishlist(result.wishlistdata);
           setIsAdded(isProductInWishlist);
+           setLocalWishlistState(isProductInWishlist);
         } else {
           console.warn("wishlistData is not an array:", result.wishlistdata);
         }
@@ -82,11 +97,12 @@ const AddtoWishlist = () => {
             return newWishlist;
           });
           setIsAdded(false);
+          setLocalWishlistState(false);
           toast.success("Product removed from wishlist!");
         } else {
           toast.error("Error removing product from wishlist!");
         }
-      } catch (error) {
+      } catch  {
         toast.error("Error removing product from wishlist!");
       }
     } else {
@@ -120,10 +136,11 @@ const AddtoWishlist = () => {
           }
           toast.success("Product added to wishlist!");
           setIsAdded(true);
+          setLocalWishlistState(true);
         } else {
           toast.error("Product added to wishlist!");
         }
-      } catch (error) {
+      } catch  {
         toast.error("An error occurred. Please try again.");
       }
     }

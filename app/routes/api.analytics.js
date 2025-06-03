@@ -6,7 +6,6 @@ export const loader = async ({ request }) => {
   try {
     const { admin, session } = await authenticate.admin(request);
     const shopURL = session.shop
-    console.log("🚀 ~ loader ~ shopURL:", shopURL)
 
 
 

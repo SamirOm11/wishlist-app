@@ -5,17 +5,12 @@ import { authenticate } from "../shopify.server";
 export const loader = async ({ request }) => {
   try {
     const { admin, session } = await authenticate.public.appProxy(request);
-    console.log("🚀 ~ loader ~ admin:", admin)
-    console.log("🚀 ~ loader ~ session:", session)
     const url = new URL(request.url);
-    console.log("🚀 ~ loader ~ url in saved:", url)
     const shopURL = url.searchParams.get("shopURL");
     const customerId = url.searchParams.get("customerId");
-    console.log("🚀 ~ loader ~ shopURL:", shopURL)
     const savedWishlistData = await addToWishlistModel.find({
       customerId
     });
-    console.log("🚀 ~ loader ~ savedWishlistData:", savedWishlistData);
 
    
     return json({ success: true, wishlistdata: savedWishlistData });

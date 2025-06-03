@@ -33,8 +33,7 @@ export default function App() {
   );
 }
 
-//i have two components mywishlistpage and wishlistlauncher.jsx i want to transfer
-// the data from mywishlistpage to wishlistlauncher.jsx how can i do that
+
 
 const renderPortal = (Component, elementId) => {
   const element = document.getElementById(elementId);

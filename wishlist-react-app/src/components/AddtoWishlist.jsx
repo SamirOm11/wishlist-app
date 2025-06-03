@@ -11,7 +11,7 @@ import { useWishlist } from "./WishlistContext";
 
 const AddtoWishlist = () => {
   const [wishlist, setWishlist] = useState([]);
-  const [isAdded, setIsAdded] = useState();
+  const [isAdded, setIsAdded] = useState(false);
   const [loading, setLoading] = useState(true);
   const dynamicProdutId = getProductid();
   const customerId = getCustomerid();

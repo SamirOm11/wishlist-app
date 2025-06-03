@@ -9,12 +9,10 @@ export const action = async ({ request }) => {
 
   try {
     const formData = await request.formData();
-    console.log("Form Data: ", formData);
 
     const shopURL = formData.get("shopURL");
     const productId = formData.get("productId");
     const customerId = formData.get("customerId");
-    console.log("🚀 ~ action ~ customerId:", customerId);
 
     let customer = await customerModel.findOne({ customerId, shopURL });
     if (!customer) {
@@ -32,8 +30,6 @@ export const action = async ({ request }) => {
     });
 
     const SavedWishlistData = await newWishlistItem.save();
-    console.log('SavedWishlistData: ', SavedWishlistData);
-    console.log("Product added to wishlist");
 
     return json(
       { success: true, wishlistData: SavedWishlistData },

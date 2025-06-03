@@ -8,13 +8,10 @@ export const loader = async ({ request }) => {
     const { admin, session } = await authenticate.admin(request);
     const shopURL = session.shop;
     const customeDetails = await customer()
-    console.log("🚀 ~ loader ~ customeDetails:", customeDetails)
     const wishlistData = await addToWishlistModel.find({
       shopURL,
     });
-    console.log("wishlistData", wishlistData);
     const productIds = wishlistData.map((item) => item.productId);
-    console.log("productIds", productIds);
     const productResponse = await admin.graphql(productDetailsQuery, {
       variables: {
         productIds,
@@ -23,7 +20,6 @@ export const loader = async ({ request }) => {
 
     const productData = await productResponse.json();
     const productDetailsArray = productData?.data?.nodes;
-    console.log("🚀 ~ loader ~ productDetailsArray:", productDetailsArray)
 
     // const customerIds = wishlistData.map((item) => item.customerId);
     // console.log("🚀 ~ loader ~ customerIds:", customerIds)

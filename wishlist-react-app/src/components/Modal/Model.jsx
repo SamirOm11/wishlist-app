@@ -1,4 +1,13 @@
-export const WishlistModal = ({ closeModal, handleDeleteWishlist }) => {
+import React from "react";
+
+export const WishlistModal = ({
+  closeModal,
+  handleConfirm,
+  message = "Are you sure you want to remove this item from wishlist?",
+  title,
+  confirmLabel = "Remove",
+}) => {
+  console.log("handleDeleteWishlist", handleConfirm);
   const styles = {
     overlay: {
       position: "fixed",
@@ -27,11 +36,6 @@ export const WishlistModal = ({ closeModal, handleDeleteWishlist }) => {
       cursor: "pointer",
       fontSize: "14px",
     },
-    openButton: {
-      backgroundColor: "#007bff",
-      color: "#fff",
-      marginBottom: "10px",
-    },
     cancelButton: {
       backgroundColor: "#ccc",
       marginRight: "10px",
@@ -48,29 +52,23 @@ export const WishlistModal = ({ closeModal, handleDeleteWishlist }) => {
   };
 
   return (
-    <div>
-      <div style={styles.overlay}>
-        <div style={styles.modal}>
-          <h2>Remove From Wishlist</h2>
-          <p>Are you sure you want to Remove this item from wishlist ?</p>
-
-          <div style={styles.buttonGroup}>
-            <button
-              onClick={closeModal}
-              style={{ ...styles.button, ...styles.cancelButton }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                handleDeleteWishlist();
-                closeModal();
-              }}
-              style={{ ...styles.button, ...styles.confirmButton }}
-            >
-              Remove
-            </button>
-          </div>
+    <div style={styles.overlay}>
+      <div style={styles.modal}>
+        <h2>{title}</h2>
+        <p>{message}</p>
+        <div style={styles.buttonGroup}>
+          <button
+            onClick={closeModal}
+            style={{ ...styles.button, ...styles.cancelButton }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            style={{ ...styles.button, ...styles.confirmButton }}
+          >
+            {confirmLabel}
+          </button>
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ const ProductCardWishlistButton = () => {
   const [productCardNodes, setProductCardNodes] = useState([]);
   const [productLinkNodes, setProductLinkNodes] = useState([]);
   const [isloading, setLoading] = useState(false);
-  console.log('isloading:', isloading);
+  console.log("isloading:", isloading);
   const customerId = getCustomerid();
   const productLinkNodeSelector =
     ".card-wrapper .card > .card__content .card__information .card__heading a";
@@ -21,20 +21,20 @@ const ProductCardWishlistButton = () => {
   setWishlistCount(wishlist.length);
 
   useEffect(() => {
-  const fetchWishlist = async () => {
-    try {
-      const response = await fetch(
-        `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
-      );
-      const result = await response.json();
-      if (result) {
-        setWishlist(result.wishlistdata);
-        setLoading(true);
+    const fetchWishlist = async () => {
+      try {
+        const response = await fetch(
+          `/apps/wishlist/api/fetchWishlistfromDb?customerId=${customerId}`,
+        );
+        const result = await response.json();
+        if (result) {
+          setWishlist(result.wishlistdata);
+          setLoading(true);
+        }
+      } catch (error) {
+        setLoading(false);
       }
-    } catch (error) {
-      setLoading(false);
-    } 
-  };
+    };
 
     fetchWishlist();
   }, []);
@@ -199,10 +199,13 @@ const ProductCardWishlistButton = () => {
                 height: "39px",
                 width: "40px",
                 borderRadius: "50%",
+                opacity: isloading ? 1 : 0.5,
+                pointerEvents: isloading ? "auto" : "none",
                 display: "inlineBlock",
               }}
             >
               <IconButton
+                disabled={!isloading}
                 sx={{ fontSize: "20px" }}
                 onClick={() => handleWishlistToggle(productGid, productUrl)}
                 style={{ color: isProductInWishlist ? "red" : "grey" }}

@@ -1,394 +1,510 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "./mywishlistpage.css";
+import { motion, AnimatePresence } from "framer-motion";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ShareIcon from "@mui/icons-material/Share";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import SortIcon from "@mui/icons-material/Sort";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { createPortal } from "react-dom";
-import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { getCustomerid } from "../lib/lib";
 import { addAlltoCart, addtoCart } from "../utils/utils";
 import SimpleBackdrop from "./Fullscreenloader";
 import toast from "react-hot-toast";
 import { WishlistModal } from "./Modal/Model";
-import WishlistLauncher from "./WishlistLauncher";
 import { useWishlist } from "./WishlistContext";
-import { title } from "process";
 
 const MyWishlistPage = () => {
-  const [wishlistProDuct, setWishlistProduct] = useState([]);
-  const [isWishlistEmpty, setIsWishlistEmpty] = useState(false);
-  const [loaderOpen, setLoaderOpen] = React.useState(false);
-  const shopURL = window.location.host;
-  const customeId = getCustomerid();
+  const [wishlistProducts, setWishlistProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortAnchorEl, setSortAnchorEl] = useState(null);
+  const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+  const [sortBy, setSortBy] = useState("dateAdded"); // dateAdded, priceHighToLow, priceLowToHigh
+  const [filterBy, setFilterBy] = useState("all"); // all, inStock, outOfStock
   const [modalState, setModalState] = useState({
     open: false,
     type: null,
-    productId: null,
+    item: null,
   });
 
-  const wishlistProductCount = wishlistProDuct?.length || 0;
-  const wishlistUrl = window.location.href;
-  const { setWishlistCount } = useWishlist();
-  setWishlistCount(wishlistProductCount);
+  const shopURL = window.location.host;
+  const customerId = getCustomerid();
+  const { wishlistCount, setWishlistCount } = useWishlist();
+  setWishlistCount(wishlistProducts.length);
 
-  const fetchWishlistProductData = async () => {
-    setLoaderOpen(true);
+  // Memoize sorted and filtered products
+  const displayedProducts = useMemo(() => {
+    let filtered = [...wishlistProducts];
+console.log('Initial wishlistProducts:', wishlistProducts);
+    console.log('Initial filtered products:', filtered);
+    // Apply filters
+    if (filterBy === "inStock") {
+      filtered = filtered.filter(
+        (item) =>
+          item.availableForSale !== false &&
+          item.variants?.edges?.[0]?.node?.availableForSale !== false,
+      );
+    } else if (filterBy === "outOfStock") {
+      console.log('Filtering out of stock items');
+      filtered = filtered.filter(
+        (item) =>
+          item.availableForSale === false ||
+          item.variants?.edges?.[0]?.node?.availableForSale === false,
+      );
+      console.log('Filtered out of stock items:', filtered);
+    }
+
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "priceHighToLow":
+          return (
+            (b.priceRangeV2?.minVariantPrice?.amount || 0) -
+            (a.priceRangeV2?.minVariantPrice?.amount || 0)
+          );
+        case "priceLowToHigh":
+          return (
+            (a.priceRangeV2?.minVariantPrice?.amount || 0) -
+            (b.priceRangeV2?.minVariantPrice?.amount || 0)
+          );
+        case "nameAZ":
+          return (a.title || "").localeCompare(b.title || "");
+        case "nameZA":
+          return (b.title || "").localeCompare(a.title || "");
+        default:
+          return 0; // Keep original order for dateAdded
+      }
+    });
+  }, [wishlistProducts, sortBy, filterBy]);
+
+  const fetchWishlistProductData = useCallback(async () => {
+    if (!customerId) return;
+
+    setIsLoading(true);
     try {
       const response = await fetch(
-        `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customeId}`,
+        `/apps/wishlist/api/displayproductwishlist?shopURL=${shopURL}&customeId=${customerId}`,
       );
+      if (!response.ok) throw new Error("Network response was not ok");
+
       const result = await response.json();
-      if (result) {
-        setLoaderOpen(false);
-        setWishlistProduct(result?.wishlistData || []);
+      if (result?.wishlistData) {
+        setWishlistProducts(result.wishlistData);
       }
     } catch (error) {
-      toast.error("Failed to fetch wishlist data.");
-      console.log("fetchWishlistProductData ~ error:", error);
+      console.error("fetchWishlistProductData error:", error);
+      toast.error("Unable to fetch your wishlist. Please try again.");
     } finally {
-      setLoaderOpen(false);
+      setIsLoading(false);
     }
-  };
+  }, [customerId, shopURL]);
 
-  const handleShareWishlist = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "My Wishlist",
-          text: "Check out my wishlist!",
+  const handleShareWishlist = async () => {
+    const wishlistUrl = window.location.href;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "My Curated Wishlist",
+          text: `Check out my wishlist on ${shopURL}!`,
           url: wishlistUrl,
-        })
-        .catch((error) => console.log("Error sharing:", error));
-    } else {
-      setShowPopup(true);
-    }
-  };
-
-  //===============================OR===============================
-  // const copyToClipboard = () => {
-  //   navigator.clipboard.writeText(wishlistUrl);
-  //   alert("Wishlist link copied!");
-  // };
-
-  const handleDeleteWishlist = async (RemoveOne, item) => {
-    setLoaderOpen(true);
-    try {
-      const response = await fetch(
-        `/apps/wishlist/api/deleteAllWishProduct?customeId=${customeId}&type=${RemoveOne}&productId=${item.id}`,
-        {
-          method: "DELETE",
-        },
-      );
-      const result = await response.json();
-      if (result) {
-        if (RemoveOne === "RemoveOne") {
-          // Remove product from wishlist in state after successful deletion
-          setWishlistProduct((prevWishlist) => {
-            return prevWishlist.filter(
-              (wishlistItem) => wishlistItem.id !== item.id,
-            );
-          });
-        } else {
-          setWishlistProduct([]);
-        }
-        toast.success("Product successfully deleted");
+        });
+        toast.success("Wishlist shared successfully!");
+      } else {
+        await navigator.clipboard.writeText(wishlistUrl);
+        toast.success("Wishlist link copied to clipboard!");
       }
     } catch (error) {
-      toast.error("Failed to delete wishlist item(s).");
-    } finally {
-      setLoaderOpen(false);
+      console.error("Error sharing:", error);
+      toast.error("Unable to share wishlist. Please try again.");
     }
   };
 
-  const handleAddToCart = async (item) => {
-    if (!item) {
-      return;
-    }
-    setLoaderOpen(true);
-
-    const { error } = await addtoCart({
-      wishlistProDucts: [item],
-    });
-
-    if (error) {
-      toast.error("Unable to add item to cart. Please try again.");
-      setLoaderOpen(false);
-    } else {
-      toast.success("Product successfully added to cart!");
-      setLoaderOpen(false);
-    }
-  };
-
-  const handleAddAlltoCart = async (item) => {
-    if (!item) {
-      return;
-    }
-
-    const { error } = await addAlltoCart({
-      wishlistProDucts: item,
-    });
-
-    if (error) {
-      toast.error("Unable to add item to cart. Please try again.");
-      setLoaderOpen(false);
-    } else {
-      toast.success("Product's successfully added to cart!");
-    }
-  };
-
-  // Modal openers
-  const openRemoveOneModal = (productId) =>
-    setModalState({ open: true, type: "removeOne", productId });
-  const openAddAllModal = () =>
-    setModalState({ open: true, type: "addAll", productId: null });
-  const openClearAllModal = () =>
-    setModalState({ open: true, type: "clearAll", productId: null });
-  const closeModal = () =>
-    setModalState({ open: false, type: null, productId: null });
-
-  // Modal props based on action
-
-  const getModalProps = () => {
-    switch (modalState.type) {
-      case "removeOne":
-        return {
-          message:
-            "Are you sure you want to remove this item from your wishlist?",
-          confirmLabel: "Remove",
-          title: "Remove From Wishlist",
-          onConfirm: () =>
-            handleDeleteWishlist(
-              "RemoveOne",
-              wishlistProDuct.find((item) => item.id === modalState.productId),
+  const handleDeleteWishlist = useCallback(
+    async (actionType, itemToDelete) => {
+      setIsLoading(true);
+      try {
+        if (actionType === "RemoveOne") {
+          await fetch(
+            `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=RemoveOne&productId=${itemToDelete.id}`,
+            {
+              method: "DELETE",
+            },
+          );
+          setWishlistProducts((prev) =>
+            prev.filter((item) => item.id !== itemToDelete.id),
+          );
+          toast.success("Item removed from wishlist");
+        } else if (actionType === "clearAll") {
+          const deletePromises = wishlistProducts.map((item) =>
+            fetch(
+              `/apps/wishlist/api/deleteAllWishProduct?customeId=${customerId}&type=RemoveOne&productId=${item.id}`,
+              {
+                method: "DELETE",
+              },
             ),
-        };
-      case "addAll":
-        return {
-          message: "Add all wishlist items to cart?",
-          confirmLabel: "Add All",
-          title: "Add All to Cart",
-          onConfirm: () => handleAddAlltoCart(wishlistProDuct),
-        };
-      case "clearAll":
-        return {
-          message: "Clear all items from wishlist?",
-          confirmLabel: "Clear All",
-          title: "Clear Wishlist",
-          onConfirm: () => handleDeleteWishlist("clearAll", {}),
-        };
-      default:
-        return {};
+          );
+          await Promise.all(deletePromises);
+          setWishlistProducts([]);
+          toast.success("Wishlist cleared successfully");
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error("Failed to remove item(s). Please try again.");
+      } finally {
+        setIsLoading(false);
+        closeModal();
+      }
+    },
+    [customerId, wishlistProducts],
+  );
+
+  const handleAddToCart = useCallback(async (items, isMultiple = false) => {
+    if (!items?.length) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await addtoCart({ wishlistProDucts: items });
+      if (error) throw new Error(error);
+
+      toast.success(
+        isMultiple ? "All items added to cart!" : "Item added to cart!",
+      );
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      toast.error("Failed to add item(s) to cart. Please try again.");
+    } finally {
+      setIsLoading(false);
+      closeModal();
     }
+  }, []);
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setSortAnchorEl(null);
   };
+
+  const handleFilterChange = (newFilterBy) => {
+    console.log('newFilterBy:', newFilterBy);
+    setFilterBy(newFilterBy);
+    setFilterAnchorEl(null);
+  };
+
+  const openModal = (type, item = null) =>
+    setModalState({ open: true, type, item });
+  const closeModal = () =>
+    setModalState({ open: false, type: null, item: null });
+
+  const handleClickOutside = useCallback((event) => {
+    if (sortAnchorEl && !sortAnchorEl.contains(event.target)) {
+      setSortAnchorEl(null);
+    }
+    if (filterAnchorEl && !filterAnchorEl.contains(event.target)) {
+      setFilterAnchorEl(null);
+    }
+  }, [sortAnchorEl, filterAnchorEl]);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
   useEffect(() => {
     fetchWishlistProductData();
-  }, []);
+  }, [fetchWishlistProductData]);
 
-  useEffect(() => {
-    if (wishlistProDuct?.length) setIsWishlistEmpty(false);
-    else setIsWishlistEmpty(true);
-  }, [wishlistProDuct]);
+  // Animation variants for Framer Motion
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
+  };
+
+  if (isLoading && wishlistProducts.length === 0) {
+    return createPortal(<SimpleBackdrop open={true} />, document.body);
+  }
 
   return (
-    <>
-      {!customeId && (
-        <div style={{ width: "100%", backgroundColor: "black" }}>
-          <h1 className="wishlist-login-message">
-            Please login to save this Wishlist to your Account. (This is
-            optional)
-          </h1>
-        </div>
+    <div className="wishlist-page-container">
+      {createPortal(<SimpleBackdrop open={isLoading} />, document.body)}
+
+      {!customerId && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="wishlist-login-prompt"
+        >
+          Please login to sync your wishlist across devices
+        </motion.div>
       )}
-      <div className="wishlist-actions-bar">
-        <Button
-          sx={{
-            fontSize: "12px",
-            backgroundColor: "black",
-            color: "white",
-          }}
-          onClick={openClearAllModal}
-        >
-          Clear All
-        </Button>
-        <Button
-          sx={{
-            fontSize: "12px",
-            backgroundColor: "black",
-            color: "white",
-          }}
-          onClick={openAddAllModal}
-        >
-          Add All
-        </Button>
-        <button
-          onClick={() => handleShareWishlist()}
-          className="share-button"
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: 0,
-            marginLeft: "8px",
-          }}
-          aria-label="Share Wishlist"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#000"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-        </button>
-      </div>
 
-      {loaderOpen
-        ? createPortal(
-            <SimpleBackdrop open={loaderOpen} setOpen={setLoaderOpen} />,
-            document.querySelector("body"),
-          )
-        : isWishlistEmpty && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                // paddingTop: "100px",
-                minHeight: "40vh",
-              }}
-            >
-              <svg
-                width="120"
-                height="120"
-                viewBox="0 0 120 120"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                // style={{ marginBottom: "24px" }}
+      {wishlistProducts.length > 0 && (
+        <div className="wishlist-header">
+          <div className="wishlist-title">
+            <h1>My Wishlist</h1>
+            <span className="wishlist-count">
+              {wishlistProducts.length}{" "}
+              {wishlistProducts.length === 1 ? "item" : "items"}
+            </span>
+          </div>
+
+          <div className="wishlist-actions-bar">
+            <div className="wishlist-filters">
+              <IconButton
+                onClick={(e) => setSortAnchorEl(e.currentTarget)}
+                className="filter-button"
+                aria-label="Sort items"
               >
-                <circle cx="60" cy="60" r="56" fill="#F5F6FA" />
-                <path
-                  d="M60 88s-28-18.7-28-36.2C32 39.5 43.2 32 54.2 37.7c2.3 1.2 4.2 3.3 5.8 5.3 1.6-2 3.5-4.1 5.8-5.3C76.8 32 88 39.5 88 51.8 88 69.3 60 88 60 88z"
-                  stroke="#A5B4FC"
-                  strokeWidth="3"
-                  fill="none"
-                />
-                <g>
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="18"
-                    fill="#fff"
-                    stroke="#A5B4FC"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M68 52L52 68M52 52l16 16"
-                    stroke="#F87171"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                </g>
-              </svg>
-
-              <h2
-                className="Empty-Wishlist-Text"
-                style={{
-                  fontWeight: 600,
-                  fontSize: "3rem",
-                  color: "#22223B",
-                  marginBottom: "8px",
-                  textAlign: "center",
+                <SortIcon />
+              </IconButton>              <Menu
+                anchorEl={sortAnchorEl}
+                open={Boolean(sortAnchorEl)}
+                onClose={() => setSortAnchorEl(null)}
+                disableScrollLock
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
                 }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              ><MenuItem className="smaller-menu-item" onClick={() => handleSortChange("dateAdded")}>
+                  Date Added
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("priceHighToLow")}>
+                  Price: High to Low
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("priceLowToHigh")}>
+                  Price: Low to High
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("nameAZ")}>
+                  Name: A to Z
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("nameZA")}>
+                  Name: Z to A
+                </MenuItem>
+              </Menu>
+
+              <IconButton
+                onClick={(e) => setFilterAnchorEl(e.currentTarget)}
+                className="filter-button"
+                aria-label="Filter items"
               >
-                Your Wishlist is Empty
-              </h2>
+                <FilterListIcon />
+              </IconButton>              <Menu
+                anchorEl={filterAnchorEl}
+                open={Boolean(filterAnchorEl)}
+                onClose={() => setFilterAnchorEl(null)}
+                disableScrollLock
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              ><MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("all")}>
+                  All Items
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("inStock")}>
+                  In Stock
+                </MenuItem>
+                <MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("outOfStock")}>
+                  Out of Stock
+                </MenuItem>
+              </Menu>
             </div>
-          )}
 
-      {wishlistProDuct.length ? (
-        <div className="wishlist-container">
-          {wishlistProDuct?.map((item) => (
-            <div className="wishlist-card" key={item.id}>
-              <div className="wishlist-image-container">
-                <img
-                  className="wishlist-product-image"
-                  src={item?.media?.edges[0]?.node?.preview?.image?.url}
-                  alt={item.title}
-                />
-              </div>
-              <div className="wishlist-info">
-                <p className="wishlist-product-title">{item.title}</p>
-                <p className="wishlist-product-price">
-                  ₹{item.priceRangeV2?.minVariantPrice?.amount}
-                </p>
-                <div className="wishlist-actions">
-                  <button
-                    onClick={() => handleAddToCart(item)}
-                    className="add-to-cart-button"
-                  >
-                    <ShoppingCartIcon />
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => openRemoveOneModal(item.id)}
-                    className="remove-button"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                      color: "black",
-                    }}
-                    aria-label="Remove"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 105.7 122.88"
-                      aria-hidden="true"
-                    >
-                      <title>trash-bin</title>
-                      <path
-                        fill="currentColor"
-                        d="M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {modalState.open &&
-                createPortal(
-                  <WishlistModal
-                    closeModal={closeModal}
-                    handleConfirm={() => {
-                      getModalProps().onConfirm();
-                      closeModal();
-                    }}
-                    message={getModalProps().message}
-                    title={getModalProps().title}
-                    confirmLabel={getModalProps().confirmLabel}
-                  />,
-                  document.querySelector("body"),
-                )}
+            <div className="wishlist-bulk-actions">
+              <button
+                className="wishlist-action-button"
+                onClick={() => openModal("clearAll")}
+              >
+                <DeleteOutlineIcon />
+                Clear All
+              </button>
+              <button
+                className="wishlist-action-button"
+                onClick={() => handleAddToCart(wishlistProducts, true)}
+              >
+                <AddShoppingCartIcon />
+                Add All to Cart
+              </button>
+              <button
+                onClick={handleShareWishlist}
+                className="wishlist-action-button share"
+                aria-label="Share Wishlist"
+              >
+                <ShareIcon />
+                Share
+              </button>
             </div>
-          ))}
+          </div>
         </div>
-      ) : (
-        " "
       )}
-    </>
+
+      {wishlistProducts.length === 0 ? (
+        <motion.div
+          className="empty-wishlist-container"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <FavoriteBorderIcon className="empty-wishlist-icon" />
+          <h2 className="empty-wishlist-title">Your Wishlist is Empty</h2>
+          <p className="empty-wishlist-message">
+            Start adding items to your wishlist as you explore our store!
+          </p>
+          <a href="/" className="empty-wishlist-shop-button">
+            Start Shopping
+          </a>
+        </motion.div>
+      ) : (
+        <motion.div
+          className="wishlist-container"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          <AnimatePresence>
+            {displayedProducts.map((item) => {
+              const isAvailable =
+                item.availableForSale !== false &&
+                item.variants?.edges?.[0]?.node?.availableForSale !== false;
+
+              const hasDiscount =
+                item.compareAtPriceRange?.minVariantPrice?.amount >
+                item.priceRangeV2?.minVariantPrice?.amount;
+
+              return (
+                <motion.div
+                  key={item.id}
+                  className="wishlist-card"
+                  variants={itemVariants}
+                  layout
+                  exit={{ opacity: 0, scale: 0.8 }}
+                >
+                  <div className="wishlist-image-container">
+                    <img
+                      className="wishlist-product-image"
+                      src={
+                        item?.media?.edges[0]?.node?.preview?.image?.url ||
+                        item?.featuredImage?.url
+                      }
+                      alt={item.title}
+                      loading="lazy"
+                    />
+                    {!isAvailable && (
+                      <div className="out-of-stock-overlay">Out of Stock</div>
+                    )}
+                  </div>
+
+                  <div className="wishlist-info">
+                    <a
+                      href={item.url || `/products/${item.handle}`}
+                      className="wishlist-product-title"
+                      title={item.title}
+                    >
+                      {item.title}
+                    </a>
+
+                    <div className="wishlist-product-details">
+                      <div className="wishlist-price-container">
+                        <p className="wishlist-product-price">
+                          {new Intl.NumberFormat(undefined, {
+                            style: "currency",
+                            currency:
+                              item.priceRangeV2?.minVariantPrice
+                                ?.currencyCode || "USD",
+                          }).format(item.priceRangeV2?.minVariantPrice?.amount)}
+                        </p>
+                        {hasDiscount && (
+                          <p className="wishlist-product-compare-price">
+                            {new Intl.NumberFormat(undefined, {
+                              style: "currency",
+                              currency:
+                                item.compareAtPriceRange.minVariantPrice
+                                  .currencyCode,
+                            }).format(
+                              item.compareAtPriceRange.minVariantPrice.amount,
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="wishlist-item-actions">
+                    <button
+                      onClick={() => handleAddToCart([item])}
+                      className="item-action-button add-to-cart-button"
+                      disabled={!isAvailable}
+                    >
+                      <ShoppingCartIcon sx={{ fontSize: 18 }} />
+                      <span>
+                        {isAvailable ? "Add to Cart" : "Out of Stock"}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => openModal("removeOne", item)}
+                      className="item-action-button remove-button"
+                      aria-label={`Remove ${item.title} from wishlist`}
+                    >
+                      <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
+      {modalState.open &&
+        createPortal(
+          <WishlistModal
+            closeModal={closeModal}
+            handleConfirm={() => {
+              switch (modalState.type) {
+                case "removeOne":
+                  handleDeleteWishlist("RemoveOne", modalState.item);
+                  break;
+                case "clearAll":
+                  handleDeleteWishlist("clearAll");
+                  break;
+                default:
+                  break;
+              }
+            }}
+            message={
+              modalState.type === "removeOne"
+                ? `Remove "${modalState.item?.title}" from your wishlist?`
+                : "Clear all items from your wishlist?"
+            }
+            title={modalState.type === "removeOne" ? "Remove Item" : "Clear Wishlist"}
+            confirmLabel={modalState.type === "removeOne" ? "Remove" : "Clear All"}
+          />,
+          document.body,
+        )}
+    </div>
   );
 };
 

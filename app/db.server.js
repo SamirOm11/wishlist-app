@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const dbconnection = () => {
+ const dbconnection = () => {
   try {
     const dbURI = "mongodb://127.0.0.1:27017/Wishlist-DB";
     mongoose.connect(dbURI);
@@ -11,3 +11,5 @@ export const dbconnection = () => {
     console.log("connection error", error);
   }
 };
+
+export default dbconnection

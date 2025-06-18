@@ -1,4 +1,4 @@
-import handleFetchErrors from "../utils/handleFetchErrors";
+import handleFetchErrors from "../utils/handleFetchErrors"
 
 export const getDashboardData = async ({ startDate, endDate }) => {
   try {

@@ -1,4 +1,4 @@
-export const handleFetchErrors = ({ response }) => {
+const handleFetchErrors = ({ response }) => {
   if (response?.status >= 500) {
     shopify.toast.show("Server Error", { isError: true });
     return true;
@@ -7,3 +7,5 @@ export const handleFetchErrors = ({ response }) => {
     return true;
   }
 };
+
+export default handleFetchErrors

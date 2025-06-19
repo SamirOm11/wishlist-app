@@ -27,7 +27,7 @@ const shopify = shopifyApp({
   sessionStorage:
     process.env.NODE_ENV === "production"
       ? new MongoDBSessionStorage(process.env.MONGODB_URI)
-      : new MongoDBSessionStorage("mongodb://127.0.0.1:27017", "Wishlist-DB"),
+      : new MongoDBSessionStorage("mongodb://localhost:27017", "Wishlist-DB"),
   distribution: AppDistribution.AppStore,
 
   hooks: {

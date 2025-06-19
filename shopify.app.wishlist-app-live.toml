@@ -1,0 +1,25 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "b81aff876efbfe88bf0b97086f99b99d"
+name = "wishlist-app-live"
+handle = "wishlist-app-live"
+application_url = "https://demo42.iitpl.com/"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2025-04"
+
+[auth]
+redirect_urls = [ "https://demo42.iitpl.com/api/auth" ]
+
+[app_proxy]
+url = "https://demo42.iitpl.com/"
+subpath = "wishlist"
+prefix = "apps"
+
+[pos]
+embedded = false

@@ -1,35 +1,27 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "ab16738b33038802313dfb6ee10cd83f"
-application_url = "https://furnished-dee-critical-reference.trycloudflare.com"
+client_id = "8bce8d3d20810748fe9ab7af9137a960"
+name = "wishlist-om"
+handle = "wishlist-om"
+application_url = "https://jackson-gauge-men-charleston.trycloudflare.com"
 embedded = true
-name = "Wishlist-app"
-handle = "wishlist-app-318"
 
 [webhooks]
 api_version = "2025-01"
 
-  [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
-
-  [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
-
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_customers,write_products"
+scopes = "read_customers,read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://furnished-dee-critical-reference.trycloudflare.com/auth/callback",
-  "https://furnished-dee-critical-reference.trycloudflare.com/auth/shopify/callback",
-  "https://furnished-dee-critical-reference.trycloudflare.com/api/auth/callback"
+  "https://jackson-gauge-men-charleston.trycloudflare.com/auth/callback",
+  "https://jackson-gauge-men-charleston.trycloudflare.com/auth/shopify/callback",
+  "https://jackson-gauge-men-charleston.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://furnished-dee-critical-reference.trycloudflare.com"
+url = "https://jackson-gauge-men-charleston.trycloudflare.com"
 subpath = "wishlist"
 prefix = "apps"
 

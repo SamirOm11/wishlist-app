@@ -15,11 +15,16 @@ export const loader = async ({ request }) => {
       customerId
     });
     const productIds = wishlistData.map((item) => item.productId);
+    console.log("productIds",productIds);
+    
     const productResponse = await admin.graphql(productDetailsQuery, {
       variables: {
         productIds,
       },
     });
+
+    console.log("productResponse",productResponse);
+    
 
     const productData = await productResponse.json();
     const productDetailsArray = productData?.data?.nodes;

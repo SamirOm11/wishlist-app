@@ -37,3 +37,4 @@ export const productDetails = `query getProductDetails($productIds: [ID!]!) {
     }
   }`;
   
+  

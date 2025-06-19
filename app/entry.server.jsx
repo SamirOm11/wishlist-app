@@ -13,21 +13,7 @@ export default async function handleRequest(
   responseHeaders,
   remixContext,
 ) {
-  // 1. First call Shopify's header helper
   addDocumentResponseHeaders(request, responseHeaders);
-
-  // 2. Remove conflicting headers
-  responseHeaders.delete("Content-Security-Policy");
-  responseHeaders.delete("content-security-policy"); // Case-insensitive delete
-  responseHeaders.delete("X-Frame-Options"); // Remove this conflicting header
-
-  // 3. Set the correct CSP for embedding
-  responseHeaders.set(
-    "Content-Security-Policy",
-    "frame-ancestors https://*.myshopify.com https://admin.shopify.com;"
-  );
-
-  // 4. Continue with React streaming render
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
@@ -58,6 +44,8 @@ export default async function handleRequest(
       },
     );
 
+    // Automatically timeout the React renderer after 6 seconds, which ensures
+    // React has enough time to flush down the rejected boundary contents
     setTimeout(abort, streamTimeout + 1000);
   });
 }

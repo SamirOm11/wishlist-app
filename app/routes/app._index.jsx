@@ -130,7 +130,7 @@ export default function Index() {
         });
     } catch (error) {
       console.log(error, "error");
-      shopify.toast.show("Oops! Something went wrong", { isError: true });
+      // shopify.toast.show("Oops! Something went wrong", { isError: true });
     }
   }
 

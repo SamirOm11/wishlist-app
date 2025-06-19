@@ -2,7 +2,7 @@
   "name": "wishlist-app",
   "private": true,
   "scripts": {
-    "build": "remix vite:build --watch false",
+    "build": "remix vite:build",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",

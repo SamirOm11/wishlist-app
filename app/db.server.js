@@ -4,7 +4,7 @@ dotenv.config();
 
  const dbconnection = () => {
   try {
-    const dbURI = "mongodb://localhost:27017/Wishlist-DB";
+    const dbURI = process.env.MONGODB_URI;
     mongoose.connect(dbURI);
     console.log("connection success");
   } catch (error) {

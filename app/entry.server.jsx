@@ -14,10 +14,21 @@ export default async function handleRequest(
   remixContext,
 ) {
   addDocumentResponseHeaders(request, responseHeaders);
-  responseHeaders.set(
-  "Content-Security-Policy",
-  "frame-ancestors https://*.myshopify.com https://admin.shopify.com"
-);
+ // 2. Modify the existing CSP header instead of overwriting
+  let csp = responseHeaders.get("Content-Security-Policy") || "";
+  
+  // Remove existing frame-ancestors directive
+  csp = csp
+    .split(';')
+    .map(dir => dir.trim())
+    .filter(dir => !dir.startsWith('frame-ancestors'))
+    .join('; ');
+
+  // Add your custom frame-ancestors policy
+  csp += "; frame-ancestors https://*.myshopify.com https://admin.shopify.com";
+  
+  // Update the header
+  responseHeaders.set("Content-Security-Policy", csp);
 
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";

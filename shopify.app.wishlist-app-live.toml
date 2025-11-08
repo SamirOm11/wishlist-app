@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "b81aff876efbfe88bf0b97086f99b99d"
-name = "wishlist-app-live"
-handle = "wishlist-app-live"
+name = "Wishlist & Save for Later"
+handle = "Wishlist-&-Save-for-Later"
 application_url = "https://demo42.iitpl.com/"
 embedded = true
 
@@ -12,6 +12,10 @@ include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-04"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "http://demo42.iitpl.com/webhooks/app/hmacverify"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes

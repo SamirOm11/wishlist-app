@@ -7,15 +7,30 @@ import { getCustomerid } from "./lib/lib";
 import WishlistLauncher from "./components/WishlistLauncher";
 import { WishlistProvider } from "./components/WishlistContext";
 import CustomToaster from "./components/CustomToaster";
+import { useWishlist } from "./components/WishlistContext";
+import { useEffect } from "react";
 
 export default function App() {
   const isCustomerLogin = getCustomerid();
-  console.log("🚀 ~ App ~ isCustomerLogin:", isCustomerLogin);
+  console.log("~ App ~ isCustomerLogin:", isCustomerLogin);
+function WishlistManager({ isCustomerLogin }) {
+  const { clearWishlist } = useWishlist();
 
+  useEffect(() => {
+    if (!isCustomerLogin) {
+      clearWishlist();
+      console.log("Wishlist cleared because customer is not logged in");
+    }
+  }, [isCustomerLogin, clearWishlist]);
+
+  return null;
+}
   return (
     <>
       <CustomToaster />
       <WishlistProvider>
+                <WishlistManager isCustomerLogin={isCustomerLogin} />
+
         <ProductCardWishlistButton />
 
         {renderPortal(

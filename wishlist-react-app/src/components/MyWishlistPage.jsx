@@ -200,21 +200,21 @@ console.log('Initial wishlistProducts:', wishlistProducts);
   const closeModal = () =>
     setModalState({ open: false, type: null, item: null });
 
-  const handleClickOutside = useCallback((event) => {
-    if (sortAnchorEl && !sortAnchorEl.contains(event.target)) {
-      setSortAnchorEl(null);
-    }
-    if (filterAnchorEl && !filterAnchorEl.contains(event.target)) {
-      setFilterAnchorEl(null);
-    }
-  }, [sortAnchorEl, filterAnchorEl]);
+  // const handleClickOutside = useCallback((event) => {
+  //   if (sortAnchorEl && !sortAnchorEl.contains(event.target)) {
+  //     setSortAnchorEl(null);
+  //   }
+  //   if (filterAnchorEl && !filterAnchorEl.contains(event.target)) {
+  //     setFilterAnchorEl(null);
+  //   }
+  // }, [sortAnchorEl, filterAnchorEl]);
 
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [handleClickOutside]);
+  // useEffect(() => {
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, [handleClickOutside]);
 
   useEffect(() => {
     fetchWishlistProductData();

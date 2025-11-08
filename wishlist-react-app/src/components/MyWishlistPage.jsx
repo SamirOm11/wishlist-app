@@ -40,8 +40,8 @@ const MyWishlistPage = () => {
   // Memoize sorted and filtered products
   const displayedProducts = useMemo(() => {
     let filtered = [...wishlistProducts];
-console.log('Initial wishlistProducts:', wishlistProducts);
-    console.log('Initial filtered products:', filtered);
+    console.log("Initial wishlistProducts:", wishlistProducts);
+    console.log("Initial filtered products:", filtered);
     // Apply filters
     if (filterBy === "inStock") {
       filtered = filtered.filter(
@@ -50,13 +50,13 @@ console.log('Initial wishlistProducts:', wishlistProducts);
           item.variants?.edges?.[0]?.node?.availableForSale !== false,
       );
     } else if (filterBy === "outOfStock") {
-      console.log('Filtering out of stock items');
+      console.log("Filtering out of stock items");
       filtered = filtered.filter(
         (item) =>
           item.availableForSale === false ||
           item.variants?.edges?.[0]?.node?.availableForSale === false,
       );
-      console.log('Filtered out of stock items:', filtered);
+      console.log("Filtered out of stock items:", filtered);
     }
 
     // Apply sorting
@@ -190,7 +190,7 @@ console.log('Initial wishlistProducts:', wishlistProducts);
   };
 
   const handleFilterChange = (newFilterBy) => {
-    console.log('newFilterBy:', newFilterBy);
+    console.log("newFilterBy:", newFilterBy);
     setFilterBy(newFilterBy);
     setFilterAnchorEl(null);
   };
@@ -245,12 +245,13 @@ console.log('Initial wishlistProducts:', wishlistProducts);
       {createPortal(<SimpleBackdrop open={isLoading} />, document.body)}
 
       {!customerId && (
+        
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="wishlist-login-prompt"
         >
-          Please login to sync your wishlist across devices
+         <p>Please login to sync your wishlist across devices</p> 
         </motion.div>
       )}
 
@@ -272,62 +273,89 @@ console.log('Initial wishlistProducts:', wishlistProducts);
                 aria-label="Sort items"
               >
                 <SortIcon />
-              </IconButton>              <Menu
+              </IconButton>{" "}
+              <Menu
                 anchorEl={sortAnchorEl}
                 open={Boolean(sortAnchorEl)}
                 onClose={() => setSortAnchorEl(null)}
                 disableScrollLock
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
-              ><MenuItem className="smaller-menu-item" onClick={() => handleSortChange("dateAdded")}>
+              >
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleSortChange("dateAdded")}
+                >
                   Date Added
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("priceHighToLow")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleSortChange("priceHighToLow")}
+                >
                   Price: High to Low
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("priceLowToHigh")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleSortChange("priceLowToHigh")}
+                >
                   Price: Low to High
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("nameAZ")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleSortChange("nameAZ")}
+                >
                   Name: A to Z
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleSortChange("nameZA")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleSortChange("nameZA")}
+                >
                   Name: Z to A
                 </MenuItem>
               </Menu>
-
               <IconButton
                 onClick={(e) => setFilterAnchorEl(e.currentTarget)}
                 className="filter-button"
                 aria-label="Filter items"
               >
                 <FilterListIcon />
-              </IconButton>              <Menu
+              </IconButton>{" "}
+              <Menu
                 anchorEl={filterAnchorEl}
                 open={Boolean(filterAnchorEl)}
                 onClose={() => setFilterAnchorEl(null)}
                 disableScrollLock
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
-              ><MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("all")}>
+              >
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleFilterChange("all")}
+                >
                   All Items
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("inStock")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleFilterChange("inStock")}
+                >
                   In Stock
                 </MenuItem>
-                <MenuItem className="smaller-menu-item" onClick={() => handleFilterChange("outOfStock")}>
+                <MenuItem
+                  className="smaller-menu-item"
+                  onClick={() => handleFilterChange("outOfStock")}
+                >
                   Out of Stock
                 </MenuItem>
               </Menu>
@@ -478,6 +506,8 @@ console.log('Initial wishlistProducts:', wishlistProducts);
         </motion.div>
       )}
 
+
+
       {modalState.open &&
         createPortal(
           <WishlistModal
@@ -499,8 +529,12 @@ console.log('Initial wishlistProducts:', wishlistProducts);
                 ? `Remove "${modalState.item?.title}" from your wishlist?`
                 : "Clear all items from your wishlist?"
             }
-            title={modalState.type === "removeOne" ? "Remove Item" : "Clear Wishlist"}
-            confirmLabel={modalState.type === "removeOne" ? "Remove" : "Clear All"}
+            title={
+              modalState.type === "removeOne" ? "Remove Item" : "Clear Wishlist"
+            }
+            confirmLabel={
+              modalState.type === "removeOne" ? "Remove" : "Clear All"
+            }
           />,
           document.body,
         )}
